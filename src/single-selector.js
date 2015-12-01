@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import Selector from 'selector';
+import indexOf from 'index-of';
 
 export default class extends Component {
   static propTypes = {
@@ -85,7 +86,7 @@ export default class extends Component {
       <Selector
         {...this.props}
         autoFocus={value != null}
-        initialActiveIndex={value == null ? undefined : options.indexOf(value)}
+        initialActiveIndex={value == null ? undefined : indexOf(options, value)}
         length={options.length}
         onBlur={::this.blur}
         onFocus={::this.focus}

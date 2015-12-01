@@ -458,7 +458,17 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
 
   module.exports = _default;
 });
-define('single-selector', ['exports', 'module', 'react', 'selector'], function (exports, module, _react, _selector) {
+define('index-of', ["exports", "module"], function (exports, module) {
+  "use strict";
+
+  module.exports = function (haystack, needle) {
+    if (haystack.indexOf) return haystack.indexOf(needle);
+    for (var i in haystack) {
+      if (haystack[i] === needle) return parseInt(i);
+    }return -1;
+  };
+});
+define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of'], function (exports, module, _react, _selector, _indexOf) {
   'use strict';
 
   var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -476,6 +486,8 @@ define('single-selector', ['exports', 'module', 'react', 'selector'], function (
   var _React = _interopRequireDefault(_react);
 
   var _Selector = _interopRequireDefault(_selector);
+
+  var _indexOf2 = _interopRequireDefault(_indexOf);
 
   var _default = (function (_Component) {
     _inherits(_default, _Component);
@@ -560,7 +572,7 @@ define('single-selector', ['exports', 'module', 'react', 'selector'], function (
 
         return _React['default'].createElement(_Selector['default'], _extends({}, this.props, {
           autoFocus: value != null,
-          initialActiveIndex: value == null ? undefined : options.indexOf(value),
+          initialActiveIndex: value == null ? undefined : (0, _indexOf2['default'])(options, value),
           length: options.length,
           onBlur: this.blur.bind(this),
           onFocus: this.focus.bind(this),
