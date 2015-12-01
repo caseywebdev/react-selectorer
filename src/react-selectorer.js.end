@@ -1,0 +1,5 @@
+    var ReactSelectorer = require('react-selectorer');
+    ReactSelectorer.require = require;
+    return ReactSelectorer;
+  }).call({});
+}));

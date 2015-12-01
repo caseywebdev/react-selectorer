@@ -1,0 +1,22 @@
+{
+  "name": "react-selectorer",
+  "version": "0.0.1",
+  "author": "Casey Foster <c@sey.me>",
+  "license": "MIT",
+  "main": "react-selectorer.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orgsync/react-selectorer"
+  },
+  "peerDependencies": {
+    "react": "0.14",
+    "react-list": "0.7"
+  },
+  "devDependencies": {
+    "amdainty": "1.0.0",
+    "cogs": "1.0.7",
+    "cogs-transformer-babel": "1.0.12",
+    "cogs-transformer-concat-amd": "1.0.6",
+    "cogs-transformer-directives": "1.0.3"
+  }
+}
