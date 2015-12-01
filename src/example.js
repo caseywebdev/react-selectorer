@@ -62,7 +62,7 @@ class Example extends React.Component {
     options: NAMES
   }
 
-  handleSelect(value) {
+  handleChange(value) {
     this.setState({value});
   }
 
@@ -76,7 +76,7 @@ class Example extends React.Component {
     return (
       <SingleSelector
         onQuery={::this.handleQuery}
-        onSelect={::this.handleSelect}
+        onChange={::this.handleChange}
         options={this.state.options}
         placeholder='Search by first name...'
         query={this.state.query}

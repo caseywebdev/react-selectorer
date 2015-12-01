@@ -47,8 +47,8 @@
     }
 
     _createClass(Example, [{
-      key: 'handleSelect',
-      value: function handleSelect(value) {
+      key: 'handleChange',
+      value: function handleChange(value) {
         this.setState({ value: value });
       }
     }, {
@@ -65,7 +65,7 @@
       value: function render() {
         return _React['default'].createElement(SingleSelector, {
           onQuery: this.handleQuery.bind(this),
-          onSelect: this.handleSelect.bind(this),
+          onChange: this.handleChange.bind(this),
           options: this.state.options,
           placeholder: 'Search by first name...',
           query: this.state.query,

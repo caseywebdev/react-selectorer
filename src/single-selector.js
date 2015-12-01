@@ -3,13 +3,13 @@ import Selector from 'selector';
 
 export default class extends Component {
   static propTypes = {
+    onChange: PropTypes.func.isRequired,
+    onQuery: PropTypes.func.isRequired,
     optionRenderer: PropTypes.func.isRequired,
     options: PropTypes.oneOfType([
       PropTypes.array.isRequired,
       PropTypes.shape({length: PropTypes.number.isRequired}).isRequired
     ]).isRequired,
-    onSelect: PropTypes.func.isRequired,
-    onQuery: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     query: PropTypes.string,
     value: PropTypes.any,
@@ -48,13 +48,13 @@ export default class extends Component {
   }
 
   clear() {
-    this.props.onSelect();
+    this.props.onChange();
   }
 
   handleSelect(index) {
-    const {onQuery, onSelect, options} = this.props;
+    const {onChange, onQuery, options} = this.props;
     this.blur();
-    onSelect(options[index]);
+    onChange(options[index]);
     onQuery();
   }
 

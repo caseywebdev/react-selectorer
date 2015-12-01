@@ -504,18 +504,18 @@ define('single-selector', ['exports', 'module', 'react', 'selector'], function (
     }, {
       key: 'clear',
       value: function clear() {
-        this.props.onSelect();
+        this.props.onChange();
       }
     }, {
       key: 'handleSelect',
       value: function handleSelect(index) {
         var _props = this.props;
+        var onChange = _props.onChange;
         var onQuery = _props.onQuery;
-        var onSelect = _props.onSelect;
         var options = _props.options;
 
         this.blur();
-        onSelect(options[index]);
+        onChange(options[index]);
         onQuery();
       }
     }, {
@@ -579,10 +579,10 @@ define('single-selector', ['exports', 'module', 'react', 'selector'], function (
     }], [{
       key: 'propTypes',
       value: {
+        onChange: _react.PropTypes.func.isRequired,
+        onQuery: _react.PropTypes.func.isRequired,
         optionRenderer: _react.PropTypes.func.isRequired,
         options: _react.PropTypes.oneOfType([_react.PropTypes.array.isRequired, _react.PropTypes.shape({ length: _react.PropTypes.number.isRequired }).isRequired]).isRequired,
-        onSelect: _react.PropTypes.func.isRequired,
-        onQuery: _react.PropTypes.func.isRequired,
         placeholder: _react.PropTypes.string,
         query: _react.PropTypes.string,
         value: _react.PropTypes.any,
