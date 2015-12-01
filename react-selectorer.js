@@ -361,6 +361,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
 
         var _props2 = this.props;
         var inputRenderer = _props2.inputRenderer;
+        var placeholder = _props2.placeholder;
         var query = _props2.query;
 
         return this.props.containerRenderer({
@@ -377,7 +378,8 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
                 return _this2.query = c;
               },
               value: query,
-              onChange: this.handleQueryChange.bind(this)
+              onChange: this.handleQueryChange.bind(this),
+              placeholder: placeholder
             }
           }),
           options: this.renderOptions()
@@ -399,6 +401,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         onFocus: _react.PropTypes.func,
         onQuery: _react.PropTypes.func.isRequired,
         onSelect: _react.PropTypes.func.isRequired,
+        placeholder: _react.PropTypes.string.isRequired,
         query: _react.PropTypes.string
       },
       enumerable: true
@@ -407,8 +410,6 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       value: {
         autoFocus: false,
         autoHideOptions: true,
-        initialActiveIndex: 0,
-        length: 0,
         containerRenderer: function containerRenderer(_ref) {
           var props = _ref.props;
           var input = _ref.input;
@@ -420,10 +421,12 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
             options
           );
         },
+        initialActiveIndex: 0,
         inputRenderer: function inputRenderer(_ref2) {
           var props = _ref2.props;
-          return _React['default'].createElement('input', _extends({}, props, { className: 'oss-input', placeholder: 'Search...' }));
+          return _React['default'].createElement('input', _extends({}, props, { className: 'oss-input' }));
         },
+        length: 0,
         optionsRenderer: function optionsRenderer(_ref3) {
           var props = _ref3.props;
           var options = _ref3.options;
@@ -444,7 +447,8 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
             }),
             index
           );
-        }
+        },
+        placeholder: 'Search...'
       },
       enumerable: true
     }]);

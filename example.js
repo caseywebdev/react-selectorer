@@ -67,7 +67,7 @@
           onQuery: this.handleQuery.bind(this),
           onSelect: this.handleSelect.bind(this),
           options: this.state.options,
-          placeholder: 'Search...',
+          placeholder: 'Search by first name...',
           query: this.state.query,
           value: this.state.value
         });

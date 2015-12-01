@@ -16,18 +16,19 @@ export default class extends Component {
     onFocus: PropTypes.func,
     onQuery: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
+    placeholder: PropTypes.string.isRequired,
     query: PropTypes.string
   }
 
   static defaultProps = {
     autoFocus: false,
     autoHideOptions: true,
-    initialActiveIndex: 0,
-    length: 0,
     containerRenderer: ({props, input, options}) =>
       <div {...props} className='oss-container'>{input}{options}</div>,
+    initialActiveIndex: 0,
     inputRenderer: ({props}) =>
-      <input {...props} className='oss-input' placeholder='Search...' />,
+      <input {...props} className='oss-input' />,
+    length: 0,
     optionsRenderer: ({props, options}) =>
       <div {...props} className='oss-options'>{options}</div>,
     optionRenderer: ({props, index, isActive}) =>
@@ -38,7 +39,8 @@ export default class extends Component {
         ).join(' ')}
       >
         {index}
-      </div>
+      </div>,
+    placeholder: 'Search...'
   }
 
   state = {
@@ -166,7 +168,7 @@ export default class extends Component {
   }
 
   render() {
-    const {inputRenderer, query} = this.props;
+    const {inputRenderer, placeholder, query} = this.props;
     return this.props.containerRenderer({
       props: {
         onFocus: ::this.handleFocus,
@@ -179,7 +181,8 @@ export default class extends Component {
         props: {
           ref: c => this.query = c,
           value: query,
-          onChange: ::this.handleQueryChange
+          onChange: ::this.handleQueryChange,
+          placeholder
         }
       }),
       options: this.renderOptions()

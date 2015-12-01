@@ -78,7 +78,7 @@ class Example extends React.Component {
         onQuery={::this.handleQuery}
         onSelect={::this.handleSelect}
         options={this.state.options}
-        placeholder='Search...'
+        placeholder='Search by first name...'
         query={this.state.query}
         value={this.state.value}
       />
