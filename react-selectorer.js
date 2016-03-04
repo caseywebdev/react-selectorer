@@ -366,8 +366,6 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
 
         return this.props.containerRenderer({
           props: {
-            onFocus: this.handleFocus.bind(this),
-            onBlur: this.handleBlur.bind(this),
             onMouseDown: this.handleMouseDown.bind(this),
             onMouseLeave: this.handleMouseLeave.bind(this),
             onKeyDown: this.handleKeyDown.bind(this)
@@ -379,6 +377,8 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
               },
               value: query,
               onChange: this.handleQueryChange.bind(this),
+              onFocus: this.handleFocus.bind(this),
+              onBlur: this.handleBlur.bind(this),
               placeholder: placeholder
             }
           }),
@@ -416,7 +416,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
           var options = _ref.options;
           return _React['default'].createElement(
             'div',
-            _extends({}, props, { className: 'oss-container' }),
+            _extends({}, props, { className: 'rs-container' }),
             input,
             options
           );
@@ -424,7 +424,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         initialActiveIndex: 0,
         inputRenderer: function inputRenderer(_ref2) {
           var props = _ref2.props;
-          return _React['default'].createElement('input', _extends({}, props, { className: 'oss-input' }));
+          return _React['default'].createElement('input', _extends({}, props, { className: 'rs-input' }));
         },
         length: 0,
         optionsRenderer: function optionsRenderer(_ref3) {
@@ -432,7 +432,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
           var options = _ref3.options;
           return _React['default'].createElement(
             'div',
-            _extends({}, props, { className: 'oss-options' }),
+            _extends({}, props, { className: 'rs-options' }),
             options
           );
         },
@@ -443,7 +443,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
           return _React['default'].createElement(
             'div',
             _extends({}, props, {
-              className: ['oss-option'].concat(isActive ? 'oss-option-active' : []).join(' ')
+              className: ['rs-option'].concat(isActive ? 'rs-option-active' : []).join(' ')
             }),
             index
           );
@@ -612,7 +612,7 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
           return _React['default'].createElement(
             'div',
             _extends({}, props, {
-              className: ['oss-option'].concat(isActive ? 'oss-option-active' : [], isSelected ? 'oss-option-selected' : []).join(' ')
+              className: ['rs-option'].concat(isActive ? 'rs-option-active' : [], isSelected ? 'rs-option-selected' : []).join(' ')
             }),
             value
           );
@@ -623,15 +623,15 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
           var clear = _ref3.clear;
           return _React['default'].createElement(
             'div',
-            { className: 'oss-value' },
+            { className: 'rs-value' },
             _React['default'].createElement(
               'div',
-              _extends({}, props, { className: 'oss-value-label' }),
+              _extends({}, props, { className: 'rs-value-label' }),
               value
             ),
             _React['default'].createElement(
               'div',
-              { className: 'oss-value-clear', onClick: clear },
+              { className: 'rs-value-clear', onClick: clear },
               'X'
             )
           );

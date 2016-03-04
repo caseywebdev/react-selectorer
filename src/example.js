@@ -60,7 +60,7 @@ const NAMES = [
 class Example extends React.Component {
   state = {
     options: NAMES
-  }
+  };
 
   handleChange(value) {
     this.setState({value});

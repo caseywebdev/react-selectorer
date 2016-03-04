@@ -18,36 +18,36 @@ export default class extends Component {
     onSelect: PropTypes.func.isRequired,
     placeholder: PropTypes.string.isRequired,
     query: PropTypes.string
-  }
+  };
 
   static defaultProps = {
     autoFocus: false,
     autoHideOptions: true,
     containerRenderer: ({props, input, options}) =>
-      <div {...props} className='oss-container'>{input}{options}</div>,
+      <div {...props} className='rs-container'>{input}{options}</div>,
     initialActiveIndex: 0,
     inputRenderer: ({props}) =>
-      <input {...props} className='oss-input' />,
+      <input {...props} className='rs-input' />,
     length: 0,
     optionsRenderer: ({props, options}) =>
-      <div {...props} className='oss-options'>{options}</div>,
+      <div {...props} className='rs-options'>{options}</div>,
     optionRenderer: ({props, index, isActive}) =>
       <div
         {...props}
-        className={['oss-option'].concat(
-          isActive ? 'oss-option-active' : []
+        className={['rs-option'].concat(
+          isActive ? 'rs-option-active' : []
         ).join(' ')}
       >
         {index}
       </div>,
     placeholder: 'Search...'
-  }
+  };
 
   state = {
     activeIndex: this.props.initialActiveIndex,
     hasFocus: false,
     hasMouse: false
-  }
+  };
 
   componentDidMount() {
     if (this.props.autoFocus) this.focus();
@@ -171,8 +171,6 @@ export default class extends Component {
     const {inputRenderer, placeholder, query} = this.props;
     return this.props.containerRenderer({
       props: {
-        onFocus: ::this.handleFocus,
-        onBlur: ::this.handleBlur,
         onMouseDown: ::this.handleMouseDown,
         onMouseLeave: ::this.handleMouseLeave,
         onKeyDown: ::this.handleKeyDown
@@ -182,6 +180,8 @@ export default class extends Component {
           ref: c => this.query = c,
           value: query,
           onChange: ::this.handleQueryChange,
+          onFocus: ::this.handleFocus,
+          onBlur: ::this.handleBlur,
           placeholder
         }
       }),

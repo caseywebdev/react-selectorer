@@ -1,8 +1,8 @@
-.oss-container {
+.rs-container {
   position: relative;
 }
 
-.oss-value {
+.rs-value {
   cursor: pointer;
   display: flex;
   font-size: 12px;
@@ -10,7 +10,7 @@
   line-height: 34px;
 }
 
-.oss-value-label {
+.rs-value-label {
   background: #dbeaf3;
   border-bottom-left-radius: 3px;
   border-top-left-radius: 3px;
@@ -18,11 +18,11 @@
   padding: 0 10px;
 }
 
-.oss-value-label:hover {
+.rs-value-label:hover {
   background: #c9e0ed;
 }
 
-.oss-value-clear {
+.rs-value-clear {
   background: #f3dbdb;
   border-bottom-right-radius: 3px;
   border-top-right-radius: 3px;
@@ -30,12 +30,12 @@
   padding: 0 10px;
 }
 
-.oss-value-clear:hover {
+.rs-value-clear:hover {
   background: #c77;
   color: #fff;
 }
 
-.oss-input {
+.rs-input {
   background: #dbeaf3;
   border: 0;
   border-radius: 3px;
@@ -49,7 +49,7 @@
   width: 100%;
 }
 
-.oss-options {
+.rs-options {
   background: #fff;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
@@ -61,7 +61,7 @@
   z-index: 1;
 }
 
-.oss-option {
+.rs-option {
   background: #fff;
   cursor: pointer;
   font-size: 12px;
@@ -70,10 +70,10 @@
   padding: 0 10px;
 }
 
-.oss-option-selected {
+.rs-option-selected {
   font-weight: bold;
 }
 
-.oss-option-active {
+.rs-option-active {
   background: #eee;
 }

@@ -15,30 +15,30 @@ export default class extends Component {
     query: PropTypes.string,
     value: PropTypes.any,
     valueRenderer: PropTypes.func.isRequired
-  }
+  };
 
   static defaultProps = {
     optionRenderer: ({props, value, isActive, isSelected}) =>
       <div
         {...props}
-        className={['oss-option'].concat(
-          isActive ? 'oss-option-active' : [],
-          isSelected ? 'oss-option-selected' : []
+        className={['rs-option'].concat(
+          isActive ? 'rs-option-active' : [],
+          isSelected ? 'rs-option-selected' : []
         ).join(' ')}
       >
         {value}
       </div>,
     valueRenderer: ({props, value, clear}) =>
-      <div className='oss-value'>
-        <div {...props} className='oss-value-label'>{value}</div>
-        <div className='oss-value-clear' onClick={clear}>X</div>
+      <div className='rs-value'>
+        <div {...props} className='rs-value-label'>{value}</div>
+        <div className='rs-value-clear' onClick={clear}>X</div>
       </div>
-  }
+  };
 
   state = {
     hasFocus: false,
     query: ''
-  }
+  };
 
   blur() {
     this.setState({hasFocus: false});
