@@ -254,7 +254,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       key: 'handleSelect',
       value: function handleSelect(index) {
         this.props.onSelect(index);
-        this.blur();
+        if (this.props.blurOnSelect) this.blur();
       }
     }, {
       key: 'handleQueryChange',
@@ -367,8 +367,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         return this.props.containerRenderer({
           props: {
             onMouseDown: this.handleMouseDown.bind(this),
-            onMouseLeave: this.handleMouseLeave.bind(this),
-            onKeyDown: this.handleKeyDown.bind(this)
+            onMouseLeave: this.handleMouseLeave.bind(this)
           },
           input: inputRenderer({
             props: {
@@ -379,7 +378,9 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
               onChange: this.handleQueryChange.bind(this),
               onFocus: this.handleFocus.bind(this),
               onBlur: this.handleBlur.bind(this),
-              placeholder: placeholder
+              onKeyDown: this.handleKeyDown.bind(this),
+              placeholder: placeholder,
+              tabIndex: 0
             }
           }),
           options: this.renderOptions()
@@ -390,6 +391,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       value: {
         autoFocus: _react.PropTypes.bool.isRequired,
         autoHideOptions: _react.PropTypes.bool.isRequired,
+        blurOnSelect: _react.PropTypes.bool.isRequired,
         containerRenderer: _react.PropTypes.func.isRequired,
         initialActiveIndex: _react.PropTypes.number.isRequired,
         inputRenderer: _react.PropTypes.func.isRequired,
@@ -410,6 +412,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       value: {
         autoFocus: false,
         autoHideOptions: true,
+        blurOnSelect: true,
         containerRenderer: function containerRenderer(_ref) {
           var props = _ref.props;
           var input = _ref.input;

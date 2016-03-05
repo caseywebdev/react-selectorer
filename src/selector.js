@@ -5,6 +5,7 @@ export default class extends Component {
   static propTypes = {
     autoFocus: PropTypes.bool.isRequired,
     autoHideOptions: PropTypes.bool.isRequired,
+    blurOnSelect: PropTypes.bool.isRequired,
     containerRenderer: PropTypes.func.isRequired,
     initialActiveIndex: PropTypes.number.isRequired,
     inputRenderer: PropTypes.func.isRequired,
@@ -23,6 +24,7 @@ export default class extends Component {
   static defaultProps = {
     autoFocus: false,
     autoHideOptions: true,
+    blurOnSelect: true,
     containerRenderer: ({props, input, options}) =>
       <div {...props} className='rs-container'>{input}{options}</div>,
     initialActiveIndex: 0,
@@ -85,7 +87,7 @@ export default class extends Component {
 
   handleSelect(index) {
     this.props.onSelect(index);
-    this.blur();
+    if (this.props.blurOnSelect) this.blur();
   }
 
   handleQueryChange(ev) {
@@ -172,8 +174,7 @@ export default class extends Component {
     return this.props.containerRenderer({
       props: {
         onMouseDown: ::this.handleMouseDown,
-        onMouseLeave: ::this.handleMouseLeave,
-        onKeyDown: ::this.handleKeyDown
+        onMouseLeave: ::this.handleMouseLeave
       },
       input: inputRenderer({
         props: {
@@ -182,7 +183,9 @@ export default class extends Component {
           onChange: ::this.handleQueryChange,
           onFocus: ::this.handleFocus,
           onBlur: ::this.handleBlur,
-          placeholder
+          onKeyDown: ::this.handleKeyDown,
+          placeholder,
+          tabIndex: 0
         }
       }),
       options: this.renderOptions()
