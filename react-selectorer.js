@@ -529,7 +529,6 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
         var onQuery = _props.onQuery;
         var options = _props.options;
 
-        this.blur();
         onChange(options[index]);
         onQuery();
       }

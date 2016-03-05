@@ -54,7 +54,6 @@ export default class extends Component {
 
   handleSelect(index) {
     const {onChange, onQuery, options} = this.props;
-    this.blur();
     onChange(options[index]);
     onQuery();
   }
