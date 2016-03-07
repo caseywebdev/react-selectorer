@@ -14,6 +14,7 @@ export default class extends Component {
     placeholder: PropTypes.string,
     query: PropTypes.string,
     value: PropTypes.any,
+    inputRenderer: PropTypes.func,
     valueRenderer: PropTypes.func.isRequired
   };
 
@@ -40,12 +41,16 @@ export default class extends Component {
     query: ''
   };
 
-  blur() {
+  handleBlur() {
     this.setState({hasFocus: false});
   }
 
-  focus() {
+  handleFocus() {
     this.setState({hasFocus: true});
+    this.selector.input.focus();
+    const {options, value} = this.props;
+    const i = value == null ? undefined : indexOf(options, value);
+    if (i != null) this.selector.setActiveIndex(i);
   }
 
   clear() {
@@ -58,20 +63,6 @@ export default class extends Component {
     onQuery();
   }
 
-  renderValue() {
-    const {valueRenderer, value} = this.props;
-    const clear = ::this.clear;
-    return valueRenderer({
-      value,
-      clear,
-      props: {
-        onClick: ::this.focus,
-        onFocus: ::this.focus,
-        tabIndex: '0'
-      }
-    });
-  }
-
   renderOption({props, index, isActive}) {
     const {optionRenderer, options, value: existingValue} = this.props;
     const value = options[index];
@@ -79,27 +70,31 @@ export default class extends Component {
     return optionRenderer({index, value, isActive, isSelected, props});
   }
 
-  renderSelector() {
-    const {options, value} = this.props;
-    return (
-      <Selector
-        {...this.props}
-        autoFocus={value != null}
-        initialActiveIndex={value == null ? undefined : indexOf(options, value)}
-        length={options.length}
-        onBlur={::this.blur}
-        onFocus={::this.focus}
-        onSelect={::this.handleSelect}
-        optionRenderer={::this.renderOption}
-      />
-    );
+  renderInput({props}) {
+    const {
+      inputRenderer = Selector.defaultProps.inputRenderer,
+      value,
+      valueRenderer
+    } = this.props;
+    const {hasFocus} = this.state;
+
+    if (value == null || hasFocus) return inputRenderer({props});
+
+    return valueRenderer({value, clear: ::this.clear, props});
   }
 
   render() {
-    const {value} = this.props;
-    const {hasFocus} = this.state;
-    return value == null || hasFocus ?
-      this.renderSelector() :
-      this.renderValue();
+    return (
+      <Selector
+        {...this.props}
+        length={this.props.options.length}
+        onBlur={::this.handleBlur}
+        onFocus={::this.handleFocus}
+        onSelect={::this.handleSelect}
+        inputRenderer={::this.renderInput}
+        optionRenderer={::this.renderOption}
+        ref={c => this.selector = c}
+      />
+    );
   }
 }

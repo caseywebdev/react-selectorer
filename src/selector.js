@@ -47,16 +47,29 @@ export default class extends Component {
 
   state = {
     activeIndex: this.props.initialActiveIndex,
-    hasFocus: false,
-    hasMouse: false
+    hasFocus: false
   };
 
   componentDidMount() {
     if (this.props.autoFocus) this.focus();
+    document.addEventListener('focus', this.handleFocus, true);
+    document.addEventListener('click', this.handleFocus);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.query !== this.props.query) this.setActiveIndex(0);
+  }
+
+  componentDidUpdate() {
+    if (this.silentFocus) {
+      this.input.focus();
+      this.silentFocus = false;
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('focus', this.handleFocus, true);
+    document.removeEventListener('click', this.handleFocus);
   }
 
   incrActiveIndex(dir) {
@@ -66,6 +79,7 @@ export default class extends Component {
   setActiveIndex(i) {
     i = Math.max(0, Math.min(i, this.props.length - 1));
     this.setState({activeIndex: i}, ::this.scrollAroundActiveIndex);
+    if (!this.state.hasFocus) this.props.onSelect(i);
   }
 
   scrollAroundActiveIndex() {
@@ -73,14 +87,13 @@ export default class extends Component {
   }
 
   focus() {
-    this.query.focus();
-    this.triggerFocus();
+    this.input.focus();
+    this.setFocus(true);
   }
 
   blur() {
-    this.setState({hasMouse: false});
-    this.query.blur();
-    this.triggerBlur();
+    this.input.blur();
+    this.setFocus(false);
   }
 
   setQuery(query) {
@@ -89,7 +102,8 @@ export default class extends Component {
 
   handleSelect(index) {
     this.props.onSelect(index);
-    if (this.props.blurOnSelect) this.blur();
+    if (this.props.blurOnSelect) this.setFocus(false);
+    this.silentFocus = true;
   }
 
   handleQueryChange(ev) {
@@ -106,7 +120,11 @@ export default class extends Component {
     }
     switch (key) {
     case 'Enter':
-      this.handleSelect(this.state.activeIndex);
+      if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);
+      else {
+        this.setFocus(true);
+        this.silentFocus = true;
+      }
       return ev.preventDefault();
     case 'Escape':
       if (this.props.query) this.setQuery(''); else this.blur();
@@ -120,48 +138,32 @@ export default class extends Component {
     }
   }
 
-  handleFocus(ev) {
-    ev.stopPropagation();
-    this.setState({hasFocus: true});
-    this.triggerFocus();
-  }
+  handleFocus = ev =>
+    this.setFocus(
+      (!!this.input && this.input.contains(ev.target)) ||
+      (!!this.options && this.options.contains(ev.target))
+    );
 
-  handleBlur(ev) {
-    ev.stopPropagation();
-    this.setState({hasFocus: false});
-    if (!this.state.hasMouse) this.triggerBlur();
-  }
+  setFocus(hasFocus) {
+    if (this.silentFocus || this.state.hasFocus === hasFocus) return;
 
-  handleMouseDown(ev) {
-    ev.stopPropagation();
-    if (!this.state.hasFocus) return;
-    this.setState({hasMouse: true});
-    this.triggerFocus();
-  }
+    this.setState({hasFocus});
 
-  handleMouseLeave(ev) {
-    ev.stopPropagation();
-    this.setState({hasMouse: false});
-    if (!this.state.hasFocus) this.triggerBlur();
-  }
-
-  triggerFocus() {
-    if (this.props.onFocus) this.props.onFocus();
-  }
-
-  triggerBlur() {
-    if (this.props.onBlur) this.props.onBlur();
+    const {onFocus, onBlur} = this.props;
+    if (hasFocus && onFocus) onFocus();
+    else if (!hasFocus && onBlur) onBlur();
   }
 
   renderOptions() {
     const {autoHideOptions, listProps, length, optionRenderer, optionsRenderer}
       = this.props;
-    const {activeIndex, hasFocus, hasMouse} = this.state;
-    if (autoHideOptions && !hasFocus && !hasMouse) return;
+    const {activeIndex, hasFocus} = this.state;
+    if (autoHideOptions && !hasFocus) return;
     return (
       <Options
         activeIndex={activeIndex}
         optionRenderer={optionRenderer}
+        ref={c => this.options = c}
         renderer={optionsRenderer}
         onActivate={::this.setActiveIndex}
         onSelect={::this.handleSelect}
@@ -175,17 +177,13 @@ export default class extends Component {
     const {inputRenderer, placeholder, query} = this.props;
     return this.props.containerRenderer({
       props: {
-        onTouchStart: ::this.handleMouseDown,
-        onMouseDown: ::this.handleMouseDown,
-        onMouseLeave: ::this.handleMouseLeave
+        ref: c => this.container = c
       },
       input: inputRenderer({
         props: {
-          ref: c => this.query = c,
+          ref: c => this.input = c,
           value: query,
           onChange: ::this.handleQueryChange,
-          onFocus: ::this.handleFocus,
-          onBlur: ::this.handleBlur,
           onKeyDown: ::this.handleKeyDown,
           placeholder,
           tabIndex: 0

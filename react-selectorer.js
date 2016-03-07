@@ -197,14 +197,19 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
     _inherits(_default, _Component);
 
     function _default() {
+      var _this = this;
+
       _classCallCheck(this, _default);
 
       _get(Object.getPrototypeOf(_default.prototype), 'constructor', this).apply(this, arguments);
 
       this.state = {
         activeIndex: this.props.initialActiveIndex,
-        hasFocus: false,
-        hasMouse: false
+        hasFocus: false
+      };
+
+      this.handleFocus = function (ev) {
+        return _this.setFocus(!!_this.input && _this.input.contains(ev.target) || !!_this.options && _this.options.contains(ev.target));
       };
     }
 
@@ -212,11 +217,27 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       key: 'componentDidMount',
       value: function componentDidMount() {
         if (this.props.autoFocus) this.focus();
+        document.addEventListener('focus', this.handleFocus, true);
+        document.addEventListener('click', this.handleFocus);
       }
     }, {
       key: 'componentWillReceiveProps',
       value: function componentWillReceiveProps(nextProps) {
         if (nextProps.query !== this.props.query) this.setActiveIndex(0);
+      }
+    }, {
+      key: 'componentDidUpdate',
+      value: function componentDidUpdate() {
+        if (this.silentFocus) {
+          this.input.focus();
+          this.silentFocus = false;
+        }
+      }
+    }, {
+      key: 'componentWillUnmount',
+      value: function componentWillUnmount() {
+        document.removeEventListener('focus', this.handleFocus, true);
+        document.removeEventListener('click', this.handleFocus);
       }
     }, {
       key: 'incrActiveIndex',
@@ -228,6 +249,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       value: function setActiveIndex(i) {
         i = Math.max(0, Math.min(i, this.props.length - 1));
         this.setState({ activeIndex: i }, this.scrollAroundActiveIndex.bind(this));
+        if (!this.state.hasFocus) this.props.onSelect(i);
       }
     }, {
       key: 'scrollAroundActiveIndex',
@@ -237,15 +259,14 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
     }, {
       key: 'focus',
       value: function focus() {
-        this.query.focus();
-        this.triggerFocus();
+        this.input.focus();
+        this.setFocus(true);
       }
     }, {
       key: 'blur',
       value: function blur() {
-        this.setState({ hasMouse: false });
-        this.query.blur();
-        this.triggerBlur();
+        this.input.blur();
+        this.setFocus(false);
       }
     }, {
       key: 'setQuery',
@@ -256,7 +277,8 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       key: 'handleSelect',
       value: function handleSelect(index) {
         this.props.onSelect(index);
-        if (this.props.blurOnSelect) this.blur();
+        if (this.props.blurOnSelect) this.setFocus(false);
+        this.silentFocus = true;
       }
     }, {
       key: 'handleQueryChange',
@@ -275,7 +297,10 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         }
         switch (key) {
           case 'Enter':
-            this.handleSelect(this.state.activeIndex);
+            if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);else {
+              this.setFocus(true);
+              this.silentFocus = true;
+            }
             return ev.preventDefault();
           case 'Escape':
             if (this.props.query) this.setQuery('');else this.blur();
@@ -289,98 +314,72 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         }
       }
     }, {
-      key: 'handleFocus',
-      value: function handleFocus(ev) {
-        ev.stopPropagation();
-        this.setState({ hasFocus: true });
-        this.triggerFocus();
-      }
-    }, {
-      key: 'handleBlur',
-      value: function handleBlur(ev) {
-        ev.stopPropagation();
-        this.setState({ hasFocus: false });
-        if (!this.state.hasMouse) this.triggerBlur();
-      }
-    }, {
-      key: 'handleMouseDown',
-      value: function handleMouseDown(ev) {
-        ev.stopPropagation();
-        if (!this.state.hasFocus) return;
-        this.setState({ hasMouse: true });
-        this.triggerFocus();
-      }
-    }, {
-      key: 'handleMouseLeave',
-      value: function handleMouseLeave(ev) {
-        ev.stopPropagation();
-        this.setState({ hasMouse: false });
-        if (!this.state.hasFocus) this.triggerBlur();
-      }
-    }, {
-      key: 'triggerFocus',
-      value: function triggerFocus() {
-        if (this.props.onFocus) this.props.onFocus();
-      }
-    }, {
-      key: 'triggerBlur',
-      value: function triggerBlur() {
-        if (this.props.onBlur) this.props.onBlur();
+      key: 'setFocus',
+      value: function setFocus(hasFocus) {
+        if (this.silentFocus || this.state.hasFocus === hasFocus) return;
+
+        this.setState({ hasFocus: hasFocus });
+
+        var _props = this.props;
+        var onFocus = _props.onFocus;
+        var onBlur = _props.onBlur;
+
+        if (hasFocus && onFocus) onFocus();else if (!hasFocus && onBlur) onBlur();
       }
     }, {
       key: 'renderOptions',
       value: function renderOptions() {
-        var _this = this;
+        var _this2 = this;
 
-        var _props = this.props;
-        var autoHideOptions = _props.autoHideOptions;
-        var listProps = _props.listProps;
-        var length = _props.length;
-        var optionRenderer = _props.optionRenderer;
-        var optionsRenderer = _props.optionsRenderer;
+        var _props2 = this.props;
+        var autoHideOptions = _props2.autoHideOptions;
+        var listProps = _props2.listProps;
+        var length = _props2.length;
+        var optionRenderer = _props2.optionRenderer;
+        var optionsRenderer = _props2.optionsRenderer;
         var _state = this.state;
         var activeIndex = _state.activeIndex;
         var hasFocus = _state.hasFocus;
-        var hasMouse = _state.hasMouse;
 
-        if (autoHideOptions && !hasFocus && !hasMouse) return;
+        if (autoHideOptions && !hasFocus) return;
         return _React['default'].createElement(_Options['default'], {
           activeIndex: activeIndex,
           optionRenderer: optionRenderer,
+          ref: function (c) {
+            return _this2.options = c;
+          },
           renderer: optionsRenderer,
           onActivate: this.setActiveIndex.bind(this),
           onSelect: this.handleSelect.bind(this),
           length: length,
           listProps: _extends({}, listProps, { ref: function ref(c) {
-              return _this.list = c;
+              return _this2.list = c;
             } })
         });
       }
     }, {
       key: 'render',
       value: function render() {
-        var _this2 = this;
+        var _this3 = this;
 
-        var _props2 = this.props;
-        var inputRenderer = _props2.inputRenderer;
-        var placeholder = _props2.placeholder;
-        var query = _props2.query;
+        var _props3 = this.props;
+        var inputRenderer = _props3.inputRenderer;
+        var placeholder = _props3.placeholder;
+        var query = _props3.query;
 
         return this.props.containerRenderer({
           props: {
-            onTouchStart: this.handleMouseDown.bind(this),
-            onMouseDown: this.handleMouseDown.bind(this),
-            onMouseLeave: this.handleMouseLeave.bind(this)
+            ref: function ref(c) {
+              return _this3.container = c;
+            }
           },
           input: inputRenderer({
             props: {
               ref: function ref(c) {
-                return _this2.query = c;
+                return _this3.input = c;
               },
               value: query,
               onChange: this.handleQueryChange.bind(this),
-              onFocus: this.handleFocus.bind(this),
-              onBlur: this.handleBlur.bind(this),
               onKeyDown: this.handleKeyDown.bind(this),
               placeholder: placeholder,
               tabIndex: 0
@@ -510,14 +509,21 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
     }
 
     _createClass(_default, [{
-      key: 'blur',
-      value: function blur() {
+      key: 'handleBlur',
+      value: function handleBlur() {
         this.setState({ hasFocus: false });
       }
     }, {
-      key: 'focus',
-      value: function focus() {
+      key: 'handleFocus',
+      value: function handleFocus() {
         this.setState({ hasFocus: true });
+        this.selector.input.focus();
+        var _props = this.props;
+        var options = _props.options;
+        var value = _props.value;
+
+        var i = value == null ? undefined : (0, _indexOf2['default'])(options, value);
+        if (i != null) this.selector.setActiveIndex(i);
       }
     }, {
       key: 'clear',
@@ -527,31 +533,13 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
     }, {
       key: 'handleSelect',
       value: function handleSelect(index) {
-        var _props = this.props;
-        var onChange = _props.onChange;
-        var onQuery = _props.onQuery;
-        var options = _props.options;
+        var _props2 = this.props;
+        var onChange = _props2.onChange;
+        var onQuery = _props2.onQuery;
+        var options = _props2.options;
 
         onChange(options[index]);
         onQuery();
-      }
-    }, {
-      key: 'renderValue',
-      value: function renderValue() {
-        var _props2 = this.props;
-        var valueRenderer = _props2.valueRenderer;
-        var value = _props2.value;
-
-        var clear = this.clear.bind(this);
-        return valueRenderer({
-          value: value,
-          clear: clear,
-          props: {
-            onClick: this.focus.bind(this),
-            onFocus: this.focus.bind(this),
-            tabIndex: '0'
-          }
-        });
       }
     }, {
       key: 'renderOption',
@@ -569,29 +557,36 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
         return optionRenderer({ index: index, value: value, isActive: isActive, isSelected: isSelected, props: props });
       }
     }, {
-      key: 'renderSelector',
-      value: function renderSelector() {
+      key: 'renderInput',
+      value: function renderInput(_ref2) {
+        var props = _ref2.props;
         var _props4 = this.props;
-        var options = _props4.options;
+        var _props4$inputRenderer = _props4.inputRenderer;
+        var inputRenderer = _props4$inputRenderer === undefined ? _Selector['default'].defaultProps.inputRenderer : _props4$inputRenderer;
         var value = _props4.value;
+        var valueRenderer = _props4.valueRenderer;
+        var hasFocus = this.state.hasFocus;
 
-        return _React['default'].createElement(_Selector['default'], _extends({}, this.props, {
-          autoFocus: value != null,
-          initialActiveIndex: value == null ? undefined : (0, _indexOf2['default'])(options, value),
-          length: options.length,
-          onBlur: this.blur.bind(this),
-          onFocus: this.focus.bind(this),
-          onSelect: this.handleSelect.bind(this),
-          optionRenderer: this.renderOption.bind(this)
-        }));
+        if (value == null || hasFocus) return inputRenderer({ props: props });
+
+        return valueRenderer({ value: value, clear: this.clear.bind(this), props: props });
       }
     }, {
       key: 'render',
       value: function render() {
-        var value = this.props.value;
-        var hasFocus = this.state.hasFocus;
+        var _this = this;
 
-        return value == null || hasFocus ? this.renderSelector() : this.renderValue();
+        return _React['default'].createElement(_Selector['default'], _extends({}, this.props, {
+          length: this.props.options.length,
+          onBlur: this.handleBlur.bind(this),
+          onFocus: this.handleFocus.bind(this),
+          onSelect: this.handleSelect.bind(this),
+          inputRenderer: this.renderInput.bind(this),
+          optionRenderer: this.renderOption.bind(this),
+          ref: function (c) {
+            return _this.selector = c;
+          }
+        }));
       }
     }], [{
       key: 'propTypes',
@@ -603,17 +598,18 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
         placeholder: _react.PropTypes.string,
         query: _react.PropTypes.string,
         value: _react.PropTypes.any,
+        inputRenderer: _react.PropTypes.func,
         valueRenderer: _react.PropTypes.func.isRequired
       },
       enumerable: true
     }, {
       key: 'defaultProps',
       value: {
-        optionRenderer: function optionRenderer(_ref2) {
-          var props = _ref2.props;
-          var value = _ref2.value;
-          var isActive = _ref2.isActive;
-          var isSelected = _ref2.isSelected;
+        optionRenderer: function optionRenderer(_ref3) {
+          var props = _ref3.props;
+          var value = _ref3.value;
+          var isActive = _ref3.isActive;
+          var isSelected = _ref3.isSelected;
           return _React['default'].createElement(
             'div',
             _extends({}, props, {
@@ -622,10 +618,10 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
             value
           );
         },
-        valueRenderer: function valueRenderer(_ref3) {
-          var props = _ref3.props;
-          var value = _ref3.value;
-          var clear = _ref3.clear;
+        valueRenderer: function valueRenderer(_ref4) {
+          var props = _ref4.props;
+          var value = _ref4.value;
+          var clear = _ref4.clear;
           return _React['default'].createElement(
             'div',
             { className: 'rs-value' },
