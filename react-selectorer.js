@@ -1,10 +1,20 @@
 ((function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['react', 'react-list'], factory);
+    define(['react', 'react-dom', 'react-list'], factory);
   } else if (typeof exports !== 'undefined') {
-    module.exports = factory(require('react'), require('react-list'));
-  } else root.ReactSelectorer = factory(root.React, root.ReactList);
-})(this, function (React, ReactList) {
+    module.exports = factory(
+      require('react'),
+      require('react-dom'),
+      require('react-list')
+    );
+  } else {
+    root.ReactSelectorer = factory(
+      root.React,
+      root.ReactDOM,
+      root.ReactList
+    );
+  }
+})(this, function (React, ReactDOM, ReactList) {
   return (function () {
 var define;
 var require;
@@ -174,7 +184,12 @@ define('options', ['exports', 'module', 'option', 'react-list', 'react'], functi
 
   module.exports = Component;
 });
-define('selector', ['exports', 'module', 'options', 'react'], function (exports, module, _options, _react) {
+define('react-dom', ["exports", "module"], function (exports, module) {
+  "use strict";
+
+  module.exports = ReactDOM;
+});
+define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], function (exports, module, _reactDom, _options, _react) {
   'use strict';
 
   var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -209,7 +224,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       };
 
       this.handleFocus = function (ev) {
-        return _this.setFocus(!!_this.input && _this.input.contains(ev.target) || !!_this.options && _this.options.contains(ev.target));
+        return _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
       };
     }
 
@@ -229,7 +244,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         if (this.silentFocus) {
-          this.input.focus();
+          (0, _reactDom.findDOMNode)(this.input).focus();
           this.silentFocus = false;
         }
       }
@@ -259,13 +274,13 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
     }, {
       key: 'focus',
       value: function focus() {
-        this.input.focus();
+        (0, _reactDom.findDOMNode)(this.input).focus();
         this.setFocus(true);
       }
     }, {
       key: 'blur',
       value: function blur() {
-        this.input.blur();
+        (0, _reactDom.findDOMNode)(this.input).blur();
         this.setFocus(false);
       }
     }, {
@@ -345,9 +360,6 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         return _React['default'].createElement(_Options['default'], {
           activeIndex: activeIndex,
           optionRenderer: optionRenderer,
-          ref: function (c) {
-            return _this2.options = c;
-          },
           renderer: optionsRenderer,
           onActivate: this.setActiveIndex.bind(this),
           onSelect: this.handleSelect.bind(this),
@@ -473,7 +485,7 @@ define('index-of', ["exports", "module"], function (exports, module) {
     }return -1;
   };
 });
-define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of'], function (exports, module, _react, _selector, _indexOf) {
+define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react', 'selector'], function (exports, module, _reactDom, _indexOf, _react, _selector) {
   'use strict';
 
   var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -488,11 +500,11 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
 
   function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+  var _indexOf2 = _interopRequireDefault(_indexOf);
+
   var _React = _interopRequireDefault(_react);
 
   var _Selector = _interopRequireDefault(_selector);
-
-  var _indexOf2 = _interopRequireDefault(_indexOf);
 
   var _default = (function (_Component) {
     _inherits(_default, _Component);
@@ -517,7 +529,7 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
       key: 'handleFocus',
       value: function handleFocus() {
         this.setState({ hasFocus: true });
-        this.selector.input.focus();
+        (0, _reactDom.findDOMNode)(this.selector.input).focus();
         var _props = this.props;
         var options = _props.options;
         var value = _props.value;
@@ -558,8 +570,7 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
       }
     }, {
       key: 'renderInput',
-      value: function renderInput(_ref2) {
-        var props = _ref2.props;
+      value: function renderInput(options) {
         var _props4 = this.props;
         var _props4$inputRenderer = _props4.inputRenderer;
         var inputRenderer = _props4$inputRenderer === undefined ? _Selector['default'].defaultProps.inputRenderer : _props4$inputRenderer;
@@ -567,9 +578,9 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
         var valueRenderer = _props4.valueRenderer;
         var hasFocus = this.state.hasFocus;
 
-        if (value == null || hasFocus) return inputRenderer({ props: props });
+        if (value == null || hasFocus) return inputRenderer(options);
 
-        return valueRenderer({ value: value, clear: this.clear.bind(this), props: props });
+        return valueRenderer(_extends({}, options, { value: value, clear: this.clear.bind(this) }));
       }
     }, {
       key: 'render',
@@ -605,11 +616,11 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
     }, {
       key: 'defaultProps',
       value: {
-        optionRenderer: function optionRenderer(_ref3) {
-          var props = _ref3.props;
-          var value = _ref3.value;
-          var isActive = _ref3.isActive;
-          var isSelected = _ref3.isSelected;
+        optionRenderer: function optionRenderer(_ref2) {
+          var props = _ref2.props;
+          var value = _ref2.value;
+          var isActive = _ref2.isActive;
+          var isSelected = _ref2.isSelected;
           return _React['default'].createElement(
             'div',
             _extends({}, props, {
@@ -618,10 +629,10 @@ define('single-selector', ['exports', 'module', 'react', 'selector', 'index-of']
             value
           );
         },
-        valueRenderer: function valueRenderer(_ref4) {
-          var props = _ref4.props;
-          var value = _ref4.value;
-          var clear = _ref4.clear;
+        valueRenderer: function valueRenderer(_ref3) {
+          var props = _ref3.props;
+          var value = _ref3.value;
+          var clear = _ref3.clear;
           return _React['default'].createElement(
             'div',
             { className: 'rs-value' },

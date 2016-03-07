@@ -1,6 +1,6 @@
 {
   "name": "react-selectorer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "main": "react-selectorer.js",
@@ -10,6 +10,7 @@
   },
   "peerDependencies": {
     "react": "0.14",
+    "react-dom": "0.14",
     "react-list": "0.7"
   },
   "devDependencies": {

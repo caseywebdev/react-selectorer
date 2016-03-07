@@ -1,3 +1,4 @@
+import {findDOMNode} from 'react-dom';
 import Options from 'options';
 import React, {Component, PropTypes} from 'react';
 
@@ -62,7 +63,7 @@ export default class extends Component {
 
   componentDidUpdate() {
     if (this.silentFocus) {
-      this.input.focus();
+      findDOMNode(this.input).focus();
       this.silentFocus = false;
     }
   }
@@ -87,12 +88,12 @@ export default class extends Component {
   }
 
   focus() {
-    this.input.focus();
+    findDOMNode(this.input).focus();
     this.setFocus(true);
   }
 
   blur() {
-    this.input.blur();
+    findDOMNode(this.input).blur();
     this.setFocus(false);
   }
 
@@ -139,10 +140,7 @@ export default class extends Component {
   }
 
   handleFocus = ev =>
-    this.setFocus(
-      (!!this.input && this.input.contains(ev.target)) ||
-      (!!this.options && this.options.contains(ev.target))
-    );
+    this.setFocus(findDOMNode(this.container).contains(ev.target));
 
   setFocus(hasFocus) {
     if (this.silentFocus || this.state.hasFocus === hasFocus) return;
@@ -163,7 +161,6 @@ export default class extends Component {
       <Options
         activeIndex={activeIndex}
         optionRenderer={optionRenderer}
-        ref={c => this.options = c}
         renderer={optionsRenderer}
         onActivate={::this.setActiveIndex}
         onSelect={::this.handleSelect}

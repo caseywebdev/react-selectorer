@@ -1,6 +1,7 @@
+import {findDOMNode} from 'react-dom';
+import indexOf from 'index-of';
 import React, {Component, PropTypes} from 'react';
 import Selector from 'selector';
-import indexOf from 'index-of';
 
 export default class extends Component {
   static propTypes = {
@@ -47,7 +48,7 @@ export default class extends Component {
 
   handleFocus() {
     this.setState({hasFocus: true});
-    this.selector.input.focus();
+    findDOMNode(this.selector.input).focus();
     const {options, value} = this.props;
     const i = value == null ? undefined : indexOf(options, value);
     if (i != null) this.selector.setActiveIndex(i);
@@ -70,7 +71,7 @@ export default class extends Component {
     return optionRenderer({index, value, isActive, isSelected, props});
   }
 
-  renderInput({props}) {
+  renderInput(options) {
     const {
       inputRenderer = Selector.defaultProps.inputRenderer,
       value,
@@ -78,9 +79,9 @@ export default class extends Component {
     } = this.props;
     const {hasFocus} = this.state;
 
-    if (value == null || hasFocus) return inputRenderer({props});
+    if (value == null || hasFocus) return inputRenderer(options);
 
-    return valueRenderer({value, clear: ::this.clear, props});
+    return valueRenderer({...options, value, clear: ::this.clear});
   }
 
   render() {

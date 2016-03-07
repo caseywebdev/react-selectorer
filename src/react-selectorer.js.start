@@ -1,8 +1,18 @@
 ((function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['react', 'react-list'], factory);
+    define(['react', 'react-dom', 'react-list'], factory);
   } else if (typeof exports !== 'undefined') {
-    module.exports = factory(require('react'), require('react-list'));
-  } else root.ReactSelectorer = factory(root.React, root.ReactList);
-})(this, function (React, ReactList) {
+    module.exports = factory(
+      require('react'),
+      require('react-dom'),
+      require('react-list')
+    );
+  } else {
+    root.ReactSelectorer = factory(
+      root.React,
+      root.ReactDOM,
+      root.ReactList
+    );
+  }
+})(this, function (React, ReactDOM, ReactList) {
   return (function () {
