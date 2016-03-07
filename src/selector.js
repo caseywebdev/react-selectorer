@@ -175,6 +175,7 @@ export default class extends Component {
     const {inputRenderer, placeholder, query} = this.props;
     return this.props.containerRenderer({
       props: {
+        onTouchStart: ::this.handleMouseDown,
         onMouseDown: ::this.handleMouseDown,
         onMouseLeave: ::this.handleMouseLeave
       },

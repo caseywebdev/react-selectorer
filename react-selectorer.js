@@ -368,6 +368,7 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
 
         return this.props.containerRenderer({
           props: {
+            onTouchStart: this.handleMouseDown.bind(this),
             onMouseDown: this.handleMouseDown.bind(this),
             onMouseLeave: this.handleMouseLeave.bind(this)
           },
