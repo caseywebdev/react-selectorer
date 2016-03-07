@@ -42,6 +42,14 @@ export default class extends Component {
     query: ''
   };
 
+  focus() {
+    this.selector.focus();
+  }
+
+  blur() {
+    this.selector.blur();
+  }
+
   handleBlur() {
     this.setState({hasFocus: false});
   }

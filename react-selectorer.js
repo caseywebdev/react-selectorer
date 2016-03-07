@@ -523,6 +523,16 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
     }
 
     _createClass(_default, [{
+      key: 'focus',
+      value: function focus() {
+        this.selector.focus();
+      }
+    }, {
+      key: 'blur',
+      value: function blur() {
+        this.selector.blur();
+      }
+    }, {
       key: 'handleBlur',
       value: function handleBlur() {
         this.setState({ hasFocus: false });
