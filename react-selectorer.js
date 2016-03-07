@@ -224,7 +224,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       };
 
       this.handleFocus = function (ev) {
-        return _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
+        return _this.container && document.contains(ev.target) && _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
       };
     }
 
@@ -244,7 +244,9 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         if (this.silentFocus) {
-          (0, _reactDom.findDOMNode)(this.input).focus();
+          if (!(0, _reactDom.findDOMNode)(this.container).contains(document.activeElement)) {
+            (0, _reactDom.findDOMNode)(this.input).focus();
+          }
           this.silentFocus = false;
         }
       }

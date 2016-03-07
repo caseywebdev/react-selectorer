@@ -86,4 +86,6 @@ class Example extends React.Component {
   }
 }
 
-ReactDOM.render(<Example />, document.getElementById('main'));
+ReactDOM.render(<Example />, document.getElementById('a'));
+ReactDOM.render(<Example />, document.getElementById('b'));
+ReactDOM.render(<Example />, document.getElementById('c'));

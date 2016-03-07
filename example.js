@@ -77,5 +77,7 @@
     return Example;
   })(_React['default'].Component);
 
-  _ReactDOM['default'].render(_React['default'].createElement(Example, null), document.getElementById('main'));
+  _ReactDOM['default'].render(_React['default'].createElement(Example, null), document.getElementById('a'));
+  _ReactDOM['default'].render(_React['default'].createElement(Example, null), document.getElementById('b'));
+  _ReactDOM['default'].render(_React['default'].createElement(Example, null), document.getElementById('c'));
 });
