@@ -74,11 +74,13 @@ export default class extends Component {
 
   focus() {
     this.query.focus();
+    this.triggerFocus();
   }
 
   blur() {
     this.setState({hasMouse: false});
     this.query.blur();
+    this.triggerBlur();
   }
 
   setQuery(query) {
@@ -121,33 +123,33 @@ export default class extends Component {
   handleFocus(ev) {
     ev.stopPropagation();
     this.setState({hasFocus: true});
-    this.handleActivate();
+    this.triggerFocus();
   }
 
   handleBlur(ev) {
     ev.stopPropagation();
     this.setState({hasFocus: false});
-    if (!this.state.hasMouse) this.handleDeactivate();
+    if (!this.state.hasMouse) this.triggerBlur();
   }
 
   handleMouseDown(ev) {
     ev.stopPropagation();
     if (!this.state.hasFocus) return;
     this.setState({hasMouse: true});
-    this.handleActivate();
+    this.triggerFocus();
   }
 
   handleMouseLeave(ev) {
     ev.stopPropagation();
     this.setState({hasMouse: false});
-    if (!this.state.hasFocus) this.handleDeactivate();
+    if (!this.state.hasFocus) this.triggerBlur();
   }
 
-  handleActivate() {
+  triggerFocus() {
     if (this.props.onFocus) this.props.onFocus();
   }
 
-  handleDeactivate() {
+  triggerBlur() {
     if (this.props.onBlur) this.props.onBlur();
   }
 

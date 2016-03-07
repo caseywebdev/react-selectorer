@@ -238,12 +238,14 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       key: 'focus',
       value: function focus() {
         this.query.focus();
+        this.triggerFocus();
       }
     }, {
       key: 'blur',
       value: function blur() {
         this.setState({ hasMouse: false });
         this.query.blur();
+        this.triggerBlur();
       }
     }, {
       key: 'setQuery',
@@ -291,14 +293,14 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
       value: function handleFocus(ev) {
         ev.stopPropagation();
         this.setState({ hasFocus: true });
-        this.handleActivate();
+        this.triggerFocus();
       }
     }, {
       key: 'handleBlur',
       value: function handleBlur(ev) {
         ev.stopPropagation();
         this.setState({ hasFocus: false });
-        if (!this.state.hasMouse) this.handleDeactivate();
+        if (!this.state.hasMouse) this.triggerBlur();
       }
     }, {
       key: 'handleMouseDown',
@@ -306,23 +308,23 @@ define('selector', ['exports', 'module', 'options', 'react'], function (exports,
         ev.stopPropagation();
         if (!this.state.hasFocus) return;
         this.setState({ hasMouse: true });
-        this.handleActivate();
+        this.triggerFocus();
       }
     }, {
       key: 'handleMouseLeave',
       value: function handleMouseLeave(ev) {
         ev.stopPropagation();
         this.setState({ hasMouse: false });
-        if (!this.state.hasFocus) this.handleDeactivate();
+        if (!this.state.hasFocus) this.triggerBlur();
       }
     }, {
-      key: 'handleActivate',
-      value: function handleActivate() {
+      key: 'triggerFocus',
+      value: function triggerFocus() {
         if (this.props.onFocus) this.props.onFocus();
       }
     }, {
-      key: 'handleDeactivate',
-      value: function handleDeactivate() {
+      key: 'triggerBlur',
+      value: function triggerBlur() {
         if (this.props.onBlur) this.props.onBlur();
       }
     }, {
