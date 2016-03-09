@@ -5,7 +5,9 @@ import Selector from 'selector';
 
 export default class extends Component {
   static propTypes = {
+    onBlur: PropTypes.func,
     onChange: PropTypes.func.isRequired,
+    onFocus: PropTypes.func,
     onQuery: PropTypes.func.isRequired,
     optionRenderer: PropTypes.func.isRequired,
     options: PropTypes.oneOfType([
@@ -60,14 +62,17 @@ export default class extends Component {
 
   handleBlur() {
     this.setState({hasFocus: false});
+    const {onBlur} = this.props;
+    if (onBlur) onBlur();
   }
 
   handleFocus() {
     this.setState({hasFocus: true});
     findDOMNode(this.selector.input).focus();
-    const {options, value} = this.props;
+    const {onFocus, options, value} = this.props;
     const i = value == null ? undefined : indexOf(options, value);
     if (i != null) this.selector.setActiveIndex(i);
+    if (onFocus) onFocus();
   }
 
   clear() {

@@ -557,6 +557,9 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
       key: 'handleBlur',
       value: function handleBlur() {
         this.setState({ hasFocus: false });
+        var onBlur = this.props.onBlur;
+
+        if (onBlur) onBlur();
       }
     }, {
       key: 'handleFocus',
@@ -564,11 +567,13 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
         this.setState({ hasFocus: true });
         (0, _reactDom.findDOMNode)(this.selector.input).focus();
         var _props = this.props;
+        var onFocus = _props.onFocus;
         var options = _props.options;
         var value = _props.value;
 
         var i = value == null ? undefined : (0, _indexOf2['default'])(options, value);
         if (i != null) this.selector.setActiveIndex(i);
+        if (onFocus) onFocus();
       }
     }, {
       key: 'clear',
@@ -635,7 +640,9 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
     }], [{
       key: 'propTypes',
       value: {
+        onBlur: _react.PropTypes.func,
         onChange: _react.PropTypes.func.isRequired,
+        onFocus: _react.PropTypes.func,
         onQuery: _react.PropTypes.func.isRequired,
         optionRenderer: _react.PropTypes.func.isRequired,
         options: _react.PropTypes.oneOfType([_react.PropTypes.array.isRequired, _react.PropTypes.shape({ length: _react.PropTypes.number.isRequired }).isRequired]).isRequired,
