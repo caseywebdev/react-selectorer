@@ -50,6 +50,14 @@ export default class extends Component {
     this.selector.blur();
   }
 
+  open() {
+    this.selector.open();
+  }
+
+  close() {
+    this.selector.close();
+  }
+
   handleBlur() {
     this.setState({hasFocus: false});
   }

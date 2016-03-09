@@ -6,7 +6,7 @@ export default class extends Component {
   static propTypes = {
     autoFocus: PropTypes.bool.isRequired,
     autoHideOptions: PropTypes.bool.isRequired,
-    blurOnSelect: PropTypes.bool.isRequired,
+    closeOnSelect: PropTypes.bool.isRequired,
     containerRenderer: PropTypes.func.isRequired,
     initialActiveIndex: PropTypes.number.isRequired,
     inputRenderer: PropTypes.func.isRequired,
@@ -25,7 +25,7 @@ export default class extends Component {
   static defaultProps = {
     autoFocus: false,
     autoHideOptions: true,
-    blurOnSelect: true,
+    closeOnSelect: true,
     containerRenderer: ({props, input, options}) =>
       <div {...props} className='rs-container'>{input}{options}</div>,
     initialActiveIndex: 0,
@@ -99,14 +99,24 @@ export default class extends Component {
     this.setFocus(false);
   }
 
+  open() {
+    this.setFocus(true);
+    this.silentFocus = true;
+  }
+
+  close() {
+    this.setFocus(false);
+    this.silentFocus = true;
+  }
+
   setQuery(query) {
     this.props.onQuery(query);
   }
 
   handleSelect(index) {
     this.props.onSelect(index);
-    if (this.props.blurOnSelect) this.setFocus(false);
-    this.silentFocus = true;
+    if (this.props.closeOnSelect) this.close();
+    else this.open();
   }
 
   handleQueryChange(ev) {

@@ -286,6 +286,18 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
         this.setFocus(false);
       }
     }, {
+      key: 'open',
+      value: function open() {
+        this.setFocus(true);
+        this.silentFocus = true;
+      }
+    }, {
+      key: 'close',
+      value: function close() {
+        this.setFocus(false);
+        this.silentFocus = true;
+      }
+    }, {
       key: 'setQuery',
       value: function setQuery(query) {
         this.props.onQuery(query);
@@ -294,8 +306,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       key: 'handleSelect',
       value: function handleSelect(index) {
         this.props.onSelect(index);
-        if (this.props.blurOnSelect) this.setFocus(false);
-        this.silentFocus = true;
+        if (this.props.closeOnSelect) this.close();else this.open();
       }
     }, {
       key: 'handleQueryChange',
@@ -407,7 +418,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       value: {
         autoFocus: _react.PropTypes.bool.isRequired,
         autoHideOptions: _react.PropTypes.bool.isRequired,
-        blurOnSelect: _react.PropTypes.bool.isRequired,
+        closeOnSelect: _react.PropTypes.bool.isRequired,
         containerRenderer: _react.PropTypes.func.isRequired,
         initialActiveIndex: _react.PropTypes.number.isRequired,
         inputRenderer: _react.PropTypes.func.isRequired,
@@ -428,7 +439,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       value: {
         autoFocus: false,
         autoHideOptions: true,
-        blurOnSelect: true,
+        closeOnSelect: true,
         containerRenderer: function containerRenderer(_ref) {
           var props = _ref.props;
           var input = _ref.input;
@@ -531,6 +542,16 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
       key: 'blur',
       value: function blur() {
         this.selector.blur();
+      }
+    }, {
+      key: 'open',
+      value: function open() {
+        this.selector.open();
+      }
+    }, {
+      key: 'close',
+      value: function close() {
+        this.selector.close();
       }
     }, {
       key: 'handleBlur',
