@@ -32,6 +32,7 @@ export default class extends Component {
       >
         {value}
       </div>,
+    query: '',
     valueRenderer: ({props, value, clear}) =>
       <div className='rs-value'>
         <div {...props} className='rs-value-label'>{value}</div>
@@ -41,7 +42,7 @@ export default class extends Component {
 
   state = {
     hasFocus: false,
-    query: ''
+    query: this.props.query
   };
 
   focus() {
@@ -80,9 +81,8 @@ export default class extends Component {
   }
 
   handleSelect(index) {
-    const {onChange, onQuery, options} = this.props;
+    const {onChange, options} = this.props;
     onChange(options[index]);
-    onQuery();
   }
 
   renderOption({props, index, isActive}) {

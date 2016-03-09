@@ -529,7 +529,7 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
 
       this.state = {
         hasFocus: false,
-        query: ''
+        query: this.props.query
       };
     }
 
@@ -585,11 +585,9 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
       value: function handleSelect(index) {
         var _props2 = this.props;
         var onChange = _props2.onChange;
-        var onQuery = _props2.onQuery;
         var options = _props2.options;
 
         onChange(options[index]);
-        onQuery();
       }
     }, {
       key: 'renderOption',
@@ -669,6 +667,7 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
             value
           );
         },
+        query: '',
         valueRenderer: function valueRenderer(_ref3) {
           var props = _ref3.props;
           var value = _ref3.value;
