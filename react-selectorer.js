@@ -224,7 +224,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       };
 
       this.handleFocus = function (ev) {
-        return _this.container && document.contains(ev.target) && _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
+        return _this.container && document.documentElement.contains(ev.target) && _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
       };
     }
 
@@ -247,7 +247,6 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
           if (!(0, _reactDom.findDOMNode)(this.container).contains(document.activeElement)) {
             (0, _reactDom.findDOMNode)(this.input).focus();
           }
-          this.silentFocus = false;
         }
       }
     }, {
@@ -344,7 +343,9 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
     }, {
       key: 'setFocus',
       value: function setFocus(hasFocus) {
-        if (this.silentFocus || this.state.hasFocus === hasFocus) return;
+        if (this.state.hasFocus === hasFocus) return;
+
+        if (this.silentFocus) return this.silentFocus = false;
 
         this.setState({ hasFocus: hasFocus });
 

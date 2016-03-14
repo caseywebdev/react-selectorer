@@ -66,7 +66,6 @@ export default class extends Component {
       if (!findDOMNode(this.container).contains(document.activeElement)) {
         findDOMNode(this.input).focus();
       }
-      this.silentFocus = false;
     }
   }
 
@@ -153,11 +152,13 @@ export default class extends Component {
 
   handleFocus = ev =>
     this.container &&
-    document.contains(ev.target) &&
+    document.documentElement.contains(ev.target) &&
     this.setFocus(findDOMNode(this.container).contains(ev.target));
 
   setFocus(hasFocus) {
-    if (this.silentFocus || this.state.hasFocus === hasFocus) return;
+    if (this.state.hasFocus === hasFocus) return;
+
+    if (this.silentFocus) return this.silentFocus = false;
 
     this.setState({hasFocus});
 
