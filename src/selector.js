@@ -99,13 +99,11 @@ export default class extends Component {
   }
 
   open() {
-    this.setFocus(true);
-    this.silentFocus = true;
+    this.setFocus(true, true);
   }
 
   close() {
-    this.setFocus(false);
-    this.silentFocus = true;
+    this.setFocus(false, true);
   }
 
   setQuery(query) {
@@ -133,10 +131,7 @@ export default class extends Component {
     switch (key) {
     case 'Enter':
       if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);
-      else {
-        this.setFocus(true);
-        this.silentFocus = true;
-      }
+      else this.setFocus(true, true);
       return ev.preventDefault();
     case 'Escape':
       if (this.props.query) this.setQuery(''); else this.blur();
@@ -150,15 +145,20 @@ export default class extends Component {
     }
   }
 
-  handleFocus = ev =>
-    this.container &&
-    document.documentElement.contains(ev.target) &&
-    this.setFocus(findDOMNode(this.container).contains(ev.target));
+  handleFocus = ({target}) => {
+    const {silentFocus, container} = this;
 
-  setFocus(hasFocus) {
+    if (silentFocus) return this.silentFocus = false;
+
+    if (container && document.documentElement.contains(target)) {
+      this.setFocus(findDOMNode(container).contains(target));
+    }
+  };
+
+  setFocus(hasFocus, silentFocus) {
+    if (silentFocus) this.silentFocus = true;
+
     if (this.state.hasFocus === hasFocus) return;
-
-    if (this.silentFocus) return this.silentFocus = false;
 
     this.setState({hasFocus});
 

@@ -223,8 +223,16 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
         hasFocus: false
       };
 
-      this.handleFocus = function (ev) {
-        return _this.container && document.documentElement.contains(ev.target) && _this.setFocus((0, _reactDom.findDOMNode)(_this.container).contains(ev.target));
+      this.handleFocus = function (_ref) {
+        var target = _ref.target;
+        var silentFocus = _this.silentFocus;
+        var container = _this.container;
+
+        if (silentFocus) return _this.silentFocus = false;
+
+        if (container && document.documentElement.contains(target)) {
+          _this.setFocus((0, _reactDom.findDOMNode)(container).contains(target));
+        }
       };
     }
 
@@ -287,14 +295,12 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
     }, {
       key: 'open',
       value: function open() {
-        this.setFocus(true);
-        this.silentFocus = true;
+        this.setFocus(true, true);
       }
     }, {
       key: 'close',
       value: function close() {
-        this.setFocus(false);
-        this.silentFocus = true;
+        this.setFocus(false, true);
       }
     }, {
       key: 'setQuery',
@@ -324,10 +330,7 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
         }
         switch (key) {
           case 'Enter':
-            if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);else {
-              this.setFocus(true);
-              this.silentFocus = true;
-            }
+            if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);else this.setFocus(true, true);
             return ev.preventDefault();
           case 'Escape':
             if (this.props.query) this.setQuery('');else this.blur();
@@ -342,10 +345,10 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
       }
     }, {
       key: 'setFocus',
-      value: function setFocus(hasFocus) {
-        if (this.state.hasFocus === hasFocus) return;
+      value: function setFocus(hasFocus, silentFocus) {
+        if (silentFocus) this.silentFocus = true;
 
-        if (this.silentFocus) return this.silentFocus = false;
+        if (this.state.hasFocus === hasFocus) return;
 
         this.setState({ hasFocus: hasFocus });
 
@@ -441,10 +444,10 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
         autoFocus: false,
         autoHideOptions: true,
         closeOnSelect: true,
-        containerRenderer: function containerRenderer(_ref) {
-          var props = _ref.props;
-          var input = _ref.input;
-          var options = _ref.options;
+        containerRenderer: function containerRenderer(_ref2) {
+          var props = _ref2.props;
+          var input = _ref2.input;
+          var options = _ref2.options;
           return _React['default'].createElement(
             'div',
             _extends({}, props, { className: 'rs-container' }),
@@ -453,24 +456,24 @@ define('selector', ['exports', 'module', 'react-dom', 'options', 'react'], funct
           );
         },
         initialActiveIndex: 0,
-        inputRenderer: function inputRenderer(_ref2) {
-          var props = _ref2.props;
+        inputRenderer: function inputRenderer(_ref3) {
+          var props = _ref3.props;
           return _React['default'].createElement('input', _extends({}, props, { className: 'rs-input' }));
         },
         length: 0,
-        optionsRenderer: function optionsRenderer(_ref3) {
-          var props = _ref3.props;
-          var options = _ref3.options;
+        optionsRenderer: function optionsRenderer(_ref4) {
+          var props = _ref4.props;
+          var options = _ref4.options;
           return _React['default'].createElement(
             'div',
             _extends({}, props, { className: 'rs-options' }),
             options
           );
         },
-        optionRenderer: function optionRenderer(_ref4) {
-          var props = _ref4.props;
-          var index = _ref4.index;
-          var isActive = _ref4.isActive;
+        optionRenderer: function optionRenderer(_ref5) {
+          var props = _ref5.props;
+          var index = _ref5.index;
+          var isActive = _ref5.isActive;
           return _React['default'].createElement(
             'div',
             _extends({}, props, {
