@@ -26,7 +26,6 @@ const Component = props => {
         itemRenderer={renderOption.bind(null, props)}
         length={length}
         type='uniform'
-        updateOnActiveIndexChange={activeIndex}
         {...listProps}
       />
   });

@@ -166,8 +166,7 @@ define('options', ['exports', 'module', 'option', 'react-list', 'react'], functi
         initialIndex: activeIndex,
         itemRenderer: renderOption.bind(null, props),
         length: length,
-        type: 'uniform',
-        updateOnActiveIndexChange: activeIndex
+        type: 'uniform'
       }, listProps))
     });
   };
@@ -580,11 +579,6 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
         if (onFocus) onFocus();
       }
     }, {
-      key: 'clear',
-      value: function clear() {
-        this.props.onChange();
-      }
-    }, {
       key: 'handleSelect',
       value: function handleSelect(index) {
         var _props2 = this.props;
@@ -620,7 +614,7 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
 
         if (value == null || hasFocus) return inputRenderer(options);
 
-        return valueRenderer(_extends({}, options, { value: value, clear: this.clear.bind(this) }));
+        return valueRenderer(_extends({}, options, { value: value }));
       }
     }, {
       key: 'render',
@@ -675,20 +669,10 @@ define('single-selector', ['exports', 'module', 'react-dom', 'index-of', 'react'
         valueRenderer: function valueRenderer(_ref3) {
           var props = _ref3.props;
           var value = _ref3.value;
-          var clear = _ref3.clear;
           return _React['default'].createElement(
             'div',
-            { className: 'rs-value' },
-            _React['default'].createElement(
-              'div',
-              _extends({}, props, { className: 'rs-value-label' }),
-              value
-            ),
-            _React['default'].createElement(
-              'div',
-              { className: 'rs-value-clear', onClick: clear },
-              'X'
-            )
+            _extends({}, props, { className: 'rs-value' }),
+            value
           );
         }
       },

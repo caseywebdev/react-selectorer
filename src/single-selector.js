@@ -33,11 +33,8 @@ export default class extends Component {
         {value}
       </div>,
     query: '',
-    valueRenderer: ({props, value, clear}) =>
-      <div className='rs-value'>
-        <div {...props} className='rs-value-label'>{value}</div>
-        <div className='rs-value-clear' onClick={clear}>X</div>
-      </div>
+    valueRenderer: ({props, value}) =>
+      <div {...props} className='rs-value'>{value}</div>
   };
 
   state = {
@@ -76,10 +73,6 @@ export default class extends Component {
     if (onFocus) onFocus();
   }
 
-  clear() {
-    this.props.onChange();
-  }
-
   handleSelect(index) {
     const {onChange, options} = this.props;
     onChange(options[index]);
@@ -102,7 +95,7 @@ export default class extends Component {
 
     if (value == null || hasFocus) return inputRenderer(options);
 
-    return valueRenderer({...options, value, clear: ::this.clear});
+    return valueRenderer({...options, value});
   }
 
   render() {
