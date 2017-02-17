@@ -1,5 +1,5 @@
 import {findDOMNode} from 'react-dom';
-import Options from 'options';
+import Options from './options';
 import React, {Component, PropTypes} from 'react';
 
 export default class extends Component {

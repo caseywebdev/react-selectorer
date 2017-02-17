@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactSelectorer from 'react-selectorer';
+import ReactSelectorer from '.';
 
 const {SingleSelector} = ReactSelectorer;
 

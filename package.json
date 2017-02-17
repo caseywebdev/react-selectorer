@@ -3,21 +3,26 @@
   "version": "0.3.0",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
-  "main": "react-selectorer.js",
+  "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/orgsync/react-selectorer"
   },
   "peerDependencies": {
-    "react": "0.14 || >= 15.0.0-rc.1",
-    "react-dom": "0.14 || >= 15.0.0-rc.1",
+    "react": "0.14 || 15",
+    "react-dom": "0.14 || 15",
     "react-list": "0.8"
   },
   "devDependencies": {
-    "amdainty": "1.0.0",
-    "cogs": "1.0.7",
-    "cogs-transformer-babel": "1.0.12",
-    "cogs-transformer-concat-amd": "1.0.6",
-    "cogs-transformer-directives": "1.0.3"
+    "babel-preset-es2015": "6",
+    "babel-preset-react": "6",
+    "babel-preset-stage-0": "6",
+    "cogs-transformer-babel": "3",
+    "cogs-transformer-concat-commonjs": "3",
+    "cogs-transformer-replace": "3",
+    "cogs": "3",
+    "react": "15",
+    "react-dom": "15",
+    "react-list": "0.8"
   }
 }

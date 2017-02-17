@@ -1,4 +1,4 @@
-import Option from 'option';
+import Option from './option';
 import ReactList from 'react-list';
 import React, {PropTypes} from 'react';
 

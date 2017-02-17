@@ -1,7 +1,7 @@
 import {findDOMNode} from 'react-dom';
-import indexOf from 'index-of';
+import indexOf from './index-of';
 import React, {Component, PropTypes} from 'react';
-import Selector from 'selector';
+import Selector from './selector';
 
 export default class extends Component {
   static propTypes = {
@@ -38,8 +38,7 @@ export default class extends Component {
   };
 
   state = {
-    hasFocus: false,
-    query: this.props.query
+    hasFocus: false
   };
 
   focus() {
