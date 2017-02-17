@@ -21891,19 +21891,28 @@ var _class = function (_Component) {
           isOpen = this.state.isOpen;
 
       if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
-        (this.value || this.selector).focus();
+        var selector = this.selector,
+            _value = this.value;
+
+        (selector || (0, _reactDom.findDOMNode)(_value)).focus();
       }
     }
   }, {
     key: 'focus',
     value: function focus() {
-      (this.value || this.selector).focus();
+      var selector = this.selector,
+          value = this.value;
+
+      (selector || (0, _reactDom.findDOMNode)(value)).focus();
       this.open();
     }
   }, {
     key: 'blur',
     value: function blur() {
-      (this.value || this.selector).blur();
+      var selector = this.selector,
+          value = this.value;
+
+      (selector || (0, _reactDom.findDOMNode)(value)).blur();
       this.close();
     }
   }, {
@@ -21942,7 +21951,6 @@ var _class = function (_Component) {
     key: 'handleOpen',
     value: function handleOpen() {
       this.open();
-      (0, _reactDom.findDOMNode)(this.selector.input).focus();
       var _props2 = this.props,
           options = _props2.options,
           value = _props2.value;
@@ -21958,7 +21966,7 @@ var _class = function (_Component) {
           options = _props3.options;
 
       onChange(options[index]);
-      this.setState({ isOpen: false });
+      this.close();
     }
   }, {
     key: 'handleKeyDown',
@@ -21976,7 +21984,7 @@ var _class = function (_Component) {
           this.open();
           return ev.preventDefault();
         case 'Escape':
-          if (this.state.isOpen) this.setState({ isOpen: false });else this.blur();
+          if (this.state.isOpen) this.close();else this.blur();
           return ev.preventDefault();
         case 'ArrowUp':
           this.incrValue(-1);
@@ -22052,7 +22060,8 @@ var _class = function (_Component) {
       var value = this.props.value;
       var isOpen = this.state.isOpen;
 
-      return !isOpen && value != null ? this.renderValue() : this.renderSelector();
+      var showValue = !isOpen && value != null;
+      return showValue ? this.renderValue() : this.renderSelector();
     }
   }]);
 

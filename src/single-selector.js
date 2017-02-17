@@ -47,17 +47,20 @@ export default class extends Component {
   componentDidUpdate({value: oldValue}, {isOpen: wasOpen}) {
     const {props: {value}, state: {isOpen}} = this;
     if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
-      (this.value || this.selector).focus();
+      const {selector, value} = this;
+      (selector || findDOMNode(value)).focus();
     }
   }
 
   focus() {
-    (this.value || this.selector).focus();
+    const {selector, value} = this;
+    (selector || findDOMNode(value)).focus();
     this.open();
   }
 
   blur() {
-    (this.value || this.selector).blur();
+    const {selector, value} = this;
+    (selector || findDOMNode(value)).blur();
     this.close();
   }
 
@@ -85,7 +88,6 @@ export default class extends Component {
 
   handleOpen() {
     this.open();
-    findDOMNode(this.selector.input).focus();
     const {options, value} = this.props;
     const i = value == null ? undefined : indexOf(options, value);
     if (i != null) this.selector.setActiveIndex(i);
@@ -94,7 +96,7 @@ export default class extends Component {
   handleSelect(index) {
     const {onChange, options} = this.props;
     onChange(options[index]);
-    this.setState({isOpen: false});
+    this.close();
   }
 
   handleKeyDown(ev) {
@@ -110,7 +112,7 @@ export default class extends Component {
       this.open();
       return ev.preventDefault();
     case 'Escape':
-      if (this.state.isOpen) this.setState({isOpen: false});
+      if (this.state.isOpen) this.close();
       else this.blur();
       return ev.preventDefault();
     case 'ArrowUp':
@@ -164,6 +166,7 @@ export default class extends Component {
   render() {
     const {value} = this.props;
     const {isOpen} = this.state;
-    return !isOpen && value != null ? this.renderValue() : this.renderSelector();
+    const showValue = !isOpen && value != null;
+    return showValue ? this.renderValue() : this.renderSelector();
   }
 }
