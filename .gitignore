@@ -1,4 +1,4 @@
 /build
-/doc/*
-!/doc/index.html
+/docs/*
+!/docs/index.html
 /node_modules

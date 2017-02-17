@@ -34,8 +34,8 @@ module.exports = [
       }
     ],
     builds: {
-      'src/example.js': 'doc/index.js',
-      'src/index.css': 'doc/index.css'
+      'src/example.js': 'docs/index.js',
+      'src/index.css': 'docs/index.css'
     }
   }
 ];
