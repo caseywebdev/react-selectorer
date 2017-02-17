@@ -4,8 +4,8 @@ import React, {Component, PropTypes} from 'react';
 
 export default class extends Component {
   static propTypes = {
+    alwaysOpen: PropTypes.bool.isRequired,
     autoFocus: PropTypes.bool.isRequired,
-    autoHideOptions: PropTypes.bool.isRequired,
     closeOnSelect: PropTypes.bool.isRequired,
     containerRenderer: PropTypes.func.isRequired,
     initialActiveIndex: PropTypes.number.isRequired,
@@ -14,8 +14,8 @@ export default class extends Component {
     optionRenderer: PropTypes.func.isRequired,
     length: PropTypes.number.isRequired,
     listProps: PropTypes.object,
-    onBlur: PropTypes.func,
-    onFocus: PropTypes.func,
+    onClose: PropTypes.func,
+    onOpen: PropTypes.func,
     onQuery: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
     placeholder: PropTypes.string.isRequired,
@@ -23,8 +23,8 @@ export default class extends Component {
   };
 
   static defaultProps = {
+    alwaysOpen: false,
     autoFocus: false,
-    autoHideOptions: true,
     closeOnSelect: true,
     containerRenderer: ({props, input, options}) =>
       <div {...props} className='rs-container'>{input}{options}</div>,
@@ -48,25 +48,17 @@ export default class extends Component {
 
   state = {
     activeIndex: this.props.initialActiveIndex,
-    hasFocus: false
+    isOpen: false
   };
 
   componentDidMount() {
-    if (this.props.autoFocus) this.focus();
     document.addEventListener('focus', this.handleFocus, true);
     document.addEventListener('click', this.handleFocus);
+    if (this.props.autoFocus) this.focus();
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.query !== this.props.query) this.setActiveIndex(0);
-  }
-
-  componentDidUpdate() {
-    if (this.silentFocus) {
-      if (!findDOMNode(this.container).contains(document.activeElement)) {
-        findDOMNode(this.input).focus();
-      }
-    }
   }
 
   componentWillUnmount() {
@@ -81,7 +73,6 @@ export default class extends Component {
   setActiveIndex(i) {
     i = Math.max(0, Math.min(i, this.props.length - 1));
     this.setState({activeIndex: i}, ::this.scrollAroundActiveIndex);
-    if (!this.state.hasFocus) this.props.onSelect(i);
   }
 
   scrollAroundActiveIndex() {
@@ -90,20 +81,24 @@ export default class extends Component {
 
   focus() {
     findDOMNode(this.input).focus();
-    this.setFocus(true);
+    this.open();
   }
 
   blur() {
     findDOMNode(this.input).blur();
-    this.setFocus(false);
+    this.close();
   }
 
   open() {
-    this.setFocus(true, true);
+    this.setState({isOpen: true});
+    const {onOpen} = this.props;
+    if (onOpen) onOpen();
   }
 
   close() {
-    this.setFocus(false, true);
+    this.setState({isOpen: false});
+    const {onClose} = this.props;
+    if (onClose) onClose();
   }
 
   setQuery(query) {
@@ -122,6 +117,7 @@ export default class extends Component {
   }
 
   handleKeyDown(ev) {
+    this.open();
     ev.stopPropagation();
     var key = ev.key;
     if (ev.ctrlKey) {
@@ -130,8 +126,9 @@ export default class extends Component {
     }
     switch (key) {
     case 'Enter':
-      if (this.state.hasFocus) this.handleSelect(this.state.activeIndex);
-      else this.setFocus(true, true);
+      if (this.state.activeIndex < this.props.length) {
+        this.handleSelect(this.state.activeIndex);
+      }
       return ev.preventDefault();
     case 'Escape':
       if (this.props.query) this.setQuery(''); else this.blur();
@@ -146,32 +143,19 @@ export default class extends Component {
   }
 
   handleFocus = ({target}) => {
-    const {silentFocus, container} = this;
-
-    if (silentFocus) return this.silentFocus = false;
+    const {container} = this;
 
     if (container && document.documentElement.contains(target)) {
-      this.setFocus(findDOMNode(container).contains(target));
+      if (findDOMNode(container).contains(target)) this.open();
+      else this.close();
     }
   };
 
-  setFocus(hasFocus, silentFocus) {
-    if (silentFocus) this.silentFocus = true;
-
-    if (this.state.hasFocus === hasFocus) return;
-
-    this.setState({hasFocus});
-
-    const {onFocus, onBlur} = this.props;
-    if (hasFocus && onFocus) onFocus();
-    else if (!hasFocus && onBlur) onBlur();
-  }
-
   renderOptions() {
-    const {autoHideOptions, listProps, length, optionRenderer, optionsRenderer}
-      = this.props;
-    const {activeIndex, hasFocus} = this.state;
-    if (autoHideOptions && !hasFocus) return;
+    const {alwaysOpen, listProps, length, optionRenderer, optionsRenderer} =
+      this.props;
+    const {activeIndex, isOpen} = this.state;
+    if (!alwaysOpen && !isOpen) return;
     return (
       <Options
         activeIndex={activeIndex}
@@ -186,8 +170,8 @@ export default class extends Component {
   }
 
   render() {
-    const {inputRenderer, placeholder, query} = this.props;
-    return this.props.containerRenderer({
+    const {containerRenderer, inputRenderer, placeholder, query} = this.props;
+    return containerRenderer({
       props: {
         ref: c => this.container = c
       },

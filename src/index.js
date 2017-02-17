@@ -3,7 +3,7 @@ import Options from './options';
 import Selector from './selector';
 import SingleSelector from './single-selector';
 
-export default {
+export {
   Option,
   Options,
   Selector,

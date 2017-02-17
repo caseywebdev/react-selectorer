@@ -5,6 +5,7 @@ import Selector from './selector';
 
 export default class extends Component {
   static propTypes = {
+    containerRenderer: PropTypes.func.isRequired,
     onBlur: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onFocus: PropTypes.func,
@@ -22,6 +23,8 @@ export default class extends Component {
   };
 
   static defaultProps = {
+    containerRenderer: ({props, input, options, value}) =>
+      <div {...props} className='rs-container'>{value}{input}{options}</div>,
     optionRenderer: ({props, value, isActive, isSelected}) =>
       <div
         {...props}
@@ -38,43 +41,81 @@ export default class extends Component {
   };
 
   state = {
-    hasFocus: false
+    isOpen: false
   };
 
+  componentDidUpdate(__, {isOpen: wasOpen}) {
+    const {isOpen} = this.state;
+    if (this.selector && isOpen) this.selector.focus();
+    else if (this.value && !isOpen) this.value.focus();
+  }
+
   focus() {
-    this.selector.focus();
+    (this.value || this.selector).focus();
+    this.open();
   }
 
   blur() {
-    this.selector.blur();
+    (this.value || this.selector).blur();
   }
 
   open() {
-    this.selector.open();
+    this.setState({isOpen: true});
+    const {onOpen} = this.props;
+    if (onOpen) onOpen();
   }
 
   close() {
-    this.selector.close();
+    this.setState({isOpen: false});
+    const {onClose} = this.props;
+    if (onClose) onClose();
   }
 
-  handleBlur() {
-    this.setState({hasFocus: false});
-    const {onBlur} = this.props;
-    if (onBlur) onBlur();
+  incrValue(dir) {
+    const {onChange, options, value} = this.props;
+    const i = indexOf(options, value) + dir;
+    if (i >= 0 && i < options.length) onChange(options[i]);
   }
 
-  handleFocus() {
-    this.setState({hasFocus: true});
+  handleClose() {
+    this.close();
+  }
+
+  handleOpen() {
     findDOMNode(this.selector.input).focus();
-    const {onFocus, options, value} = this.props;
+    const {options, value} = this.props;
     const i = value == null ? undefined : indexOf(options, value);
     if (i != null) this.selector.setActiveIndex(i);
-    if (onFocus) onFocus();
   }
 
   handleSelect(index) {
     const {onChange, options} = this.props;
     onChange(options[index]);
+    this.setState({isOpen: false});
+  }
+
+  handleKeyDown(ev) {
+    ev.stopPropagation();
+    var key = ev.key;
+    if (ev.ctrlKey) {
+      if (ev.which === 80) key = 'ArrowUp';
+      if (ev.which === 78) key = 'ArrowDown';
+    }
+    switch (key) {
+    case 'Enter':
+      this.setState({isOpen: true});
+      return ev.preventDefault();
+    case 'Escape':
+      if (this.state.isOpen) this.setState({isOpen: false});
+      else this.blur();
+      return ev.preventDefault();
+    case 'ArrowUp':
+      this.incrValue(-1);
+      return ev.preventDefault();
+    case 'ArrowDown':
+      this.incrValue(1);
+      return ev.preventDefault();
+    }
   }
 
   renderOption({props, index, isActive}) {
@@ -84,31 +125,41 @@ export default class extends Component {
     return optionRenderer({index, value, isActive, isSelected, props});
   }
 
-  renderInput(options) {
-    const {
-      inputRenderer = Selector.defaultProps.inputRenderer,
-      value,
-      valueRenderer
-    } = this.props;
-    const {hasFocus} = this.state;
-
-    if (value == null || hasFocus) return inputRenderer(options);
-
-    return valueRenderer({...options, value});
+  renderValue() {
+    const {containerRenderer, valueRenderer, placeholder, value} = this.props;
+    return containerRenderer({
+      props: {
+        ref: c => this.container = c
+      },
+      value: valueRenderer({
+        props: {
+          ref: c => this.value = c,
+          onClick: ::this.open,
+          onKeyDown: ::this.handleKeyDown,
+          tabIndex: 0
+        },
+        value
+      })
+    });
   }
 
-  render() {
+  renderSelector() {
     return (
       <Selector
         {...this.props}
         length={this.props.options.length}
-        onBlur={::this.handleBlur}
-        onFocus={::this.handleFocus}
+        onClose={::this.handleClose}
+        onOpen={::this.handleOpen}
         onSelect={::this.handleSelect}
-        inputRenderer={::this.renderInput}
         optionRenderer={::this.renderOption}
         ref={c => this.selector = c}
       />
     );
+  }
+
+  render() {
+    const {value} = this.props;
+    const {isOpen} = this.state;
+    return !isOpen && value != null ? this.renderValue() : this.renderSelector();
   }
 }

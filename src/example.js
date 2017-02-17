@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactSelectorer from '.';
-
-const {SingleSelector} = ReactSelectorer;
+import {Selector, SingleSelector} from '.';
 
 const NAMES = [
   'Shanelle',
@@ -57,7 +55,51 @@ const NAMES = [
   'Colby'
 ];
 
-class Example extends React.Component {
+class SelectorExample extends React.Component {
+  state = {
+    options: NAMES,
+    query: ''
+  };
+
+  handleSelect(index) {
+    this.handleQuery(this.state.options[index]);
+  }
+
+  handleQuery(query) {
+    if (!query) query = '';
+    const needle = query.toLowerCase().trim();
+    const filter = option => option.toLowerCase().indexOf(needle) > -1;
+    this.setState({query, options: NAMES.filter(filter)});
+  }
+
+  renderOption({props, index, isActive}) {
+    return (
+      <div
+        {...props}
+        className={['rs-option'].concat(
+          isActive ? 'rs-option-active' : []
+        ).join(' ')}
+      >
+        {this.state.options[index]}
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <Selector
+        length={this.state.options.length}
+        onQuery={::this.handleQuery}
+        onSelect={::this.handleSelect}
+        optionRenderer={::this.renderOption}
+        placeholder='Search by first name...'
+        query={this.state.query}
+      />
+    );
+  }
+}
+
+class SingleSelectorExample extends React.Component {
   state = {
     options: NAMES
   };
@@ -67,8 +109,9 @@ class Example extends React.Component {
   }
 
   handleQuery(query) {
-    query = (query || '').toLowerCase().trim();
-    const filter = option => option.toLowerCase().indexOf(query) > -1;
+    if (!query) query = '';
+    const needle = query.toLowerCase().trim();
+    const filter = option => option.toLowerCase().indexOf(needle) > -1;
     this.setState({query, options: NAMES.filter(filter)});
   }
 
@@ -86,6 +129,5 @@ class Example extends React.Component {
   }
 }
 
-ReactDOM.render(<Example />, document.getElementById('a'));
-ReactDOM.render(<Example />, document.getElementById('b'));
-ReactDOM.render(<Example />, document.getElementById('c'));
+ReactDOM.render(<SelectorExample />, document.getElementById('a'));
+ReactDOM.render(<SingleSelectorExample />, document.getElementById('b'));
