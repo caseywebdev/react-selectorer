@@ -44,10 +44,11 @@ export default class extends Component {
     isOpen: false
   };
 
-  componentDidUpdate(__, {isOpen: wasOpen}) {
-    const {isOpen} = this.state;
-    if (this.selector && isOpen) this.selector.focus();
-    else if (this.value && !isOpen) this.value.focus();
+  componentDidUpdate({value: oldValue}, {isOpen: wasOpen}) {
+    const {props: {value}, state: {isOpen}} = this;
+    if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
+      (this.value || this.selector).focus();
+    }
   }
 
   focus() {
@@ -57,6 +58,7 @@ export default class extends Component {
 
   blur() {
     (this.value || this.selector).blur();
+    this.close();
   }
 
   open() {
@@ -82,6 +84,7 @@ export default class extends Component {
   }
 
   handleOpen() {
+    this.open();
     findDOMNode(this.selector.input).focus();
     const {options, value} = this.props;
     const i = value == null ? undefined : indexOf(options, value);
@@ -96,14 +99,15 @@ export default class extends Component {
 
   handleKeyDown(ev) {
     ev.stopPropagation();
-    var key = ev.key;
+    let {key} = ev;
     if (ev.ctrlKey) {
       if (ev.which === 80) key = 'ArrowUp';
       if (ev.which === 78) key = 'ArrowDown';
     }
     switch (key) {
     case 'Enter':
-      this.setState({isOpen: true});
+    case ' ':
+      this.open();
       return ev.preventDefault();
     case 'Escape':
       if (this.state.isOpen) this.setState({isOpen: false});
@@ -126,7 +130,7 @@ export default class extends Component {
   }
 
   renderValue() {
-    const {containerRenderer, valueRenderer, placeholder, value} = this.props;
+    const {containerRenderer, value, valueRenderer} = this.props;
     return containerRenderer({
       props: {
         ref: c => this.container = c

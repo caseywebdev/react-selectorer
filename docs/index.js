@@ -21884,11 +21884,15 @@ var _class = function (_Component) {
 
   _createClass(_class, [{
     key: 'componentDidUpdate',
-    value: function componentDidUpdate(__, _ref2) {
-      var wasOpen = _ref2.isOpen;
-      var isOpen = this.state.isOpen;
+    value: function componentDidUpdate(_ref2, _ref3) {
+      var oldValue = _ref2.value;
+      var wasOpen = _ref3.isOpen;
+      var value = this.props.value,
+          isOpen = this.state.isOpen;
 
-      if (this.selector && isOpen) this.selector.focus();else if (this.value && !isOpen) this.value.focus();
+      if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
+        (this.value || this.selector).focus();
+      }
     }
   }, {
     key: 'focus',
@@ -21900,6 +21904,7 @@ var _class = function (_Component) {
     key: 'blur',
     value: function blur() {
       (this.value || this.selector).blur();
+      this.close();
     }
   }, {
     key: 'open',
@@ -21936,6 +21941,7 @@ var _class = function (_Component) {
   }, {
     key: 'handleOpen',
     value: function handleOpen() {
+      this.open();
       (0, _reactDom.findDOMNode)(this.selector.input).focus();
       var _props2 = this.props,
           options = _props2.options,
@@ -21959,13 +21965,15 @@ var _class = function (_Component) {
     value: function handleKeyDown(ev) {
       ev.stopPropagation();
       var key = ev.key;
+
       if (ev.ctrlKey) {
         if (ev.which === 80) key = 'ArrowUp';
         if (ev.which === 78) key = 'ArrowDown';
       }
       switch (key) {
         case 'Enter':
-          this.setState({ isOpen: true });
+        case ' ':
+          this.open();
           return ev.preventDefault();
         case 'Escape':
           if (this.state.isOpen) this.setState({ isOpen: false });else this.blur();
@@ -21980,10 +21988,10 @@ var _class = function (_Component) {
     }
   }, {
     key: 'renderOption',
-    value: function renderOption(_ref3) {
-      var props = _ref3.props,
-          index = _ref3.index,
-          isActive = _ref3.isActive;
+    value: function renderOption(_ref4) {
+      var props = _ref4.props,
+          index = _ref4.index,
+          isActive = _ref4.isActive;
       var _props4 = this.props,
           optionRenderer = _props4.optionRenderer,
           options = _props4.options,
@@ -22000,9 +22008,8 @@ var _class = function (_Component) {
 
       var _props5 = this.props,
           containerRenderer = _props5.containerRenderer,
-          valueRenderer = _props5.valueRenderer,
-          placeholder = _props5.placeholder,
-          value = _props5.value;
+          value = _props5.value,
+          valueRenderer = _props5.valueRenderer;
 
       return containerRenderer({
         props: {
@@ -22067,11 +22074,11 @@ _class.propTypes = {
   valueRenderer: _react.PropTypes.func.isRequired
 };
 _class.defaultProps = {
-  containerRenderer: function containerRenderer(_ref4) {
-    var props = _ref4.props,
-        input = _ref4.input,
-        options = _ref4.options,
-        value = _ref4.value;
+  containerRenderer: function containerRenderer(_ref5) {
+    var props = _ref5.props,
+        input = _ref5.input,
+        options = _ref5.options,
+        value = _ref5.value;
     return _react2.default.createElement(
       'div',
       _extends({}, props, { className: 'rs-container' }),
@@ -22080,11 +22087,11 @@ _class.defaultProps = {
       options
     );
   },
-  optionRenderer: function optionRenderer(_ref5) {
-    var props = _ref5.props,
-        value = _ref5.value,
-        isActive = _ref5.isActive,
-        isSelected = _ref5.isSelected;
+  optionRenderer: function optionRenderer(_ref6) {
+    var props = _ref6.props,
+        value = _ref6.value,
+        isActive = _ref6.isActive,
+        isSelected = _ref6.isSelected;
     return _react2.default.createElement(
       'div',
       _extends({}, props, {
@@ -22094,9 +22101,9 @@ _class.defaultProps = {
     );
   },
   query: '',
-  valueRenderer: function valueRenderer(_ref6) {
-    var props = _ref6.props,
-        value = _ref6.value;
+  valueRenderer: function valueRenderer(_ref7) {
+    var props = _ref7.props,
+        value = _ref7.value;
     return _react2.default.createElement(
       'div',
       _extends({}, props, { className: 'rs-value' }),
@@ -22286,6 +22293,7 @@ var SingleSelectorExample = function (_React$Component2) {
 
 _reactDom2.default.render(_react2.default.createElement(SelectorExample, null), document.getElementById('a'));
 _reactDom2.default.render(_react2.default.createElement(SingleSelectorExample, null), document.getElementById('b'));
+_reactDom2.default.render(_react2.default.createElement(SingleSelectorExample, null), document.getElementById('c'));
 
 });
 Cogs.require("./src/example.js");

@@ -131,3 +131,4 @@ class SingleSelectorExample extends React.Component {
 
 ReactDOM.render(<SelectorExample />, document.getElementById('a'));
 ReactDOM.render(<SingleSelectorExample />, document.getElementById('b'));
+ReactDOM.render(<SingleSelectorExample />, document.getElementById('c'));
