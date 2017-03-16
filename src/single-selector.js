@@ -44,10 +44,10 @@ export default class extends Component {
     isOpen: false
   };
 
-  componentDidUpdate({value: oldValue}, {isOpen: wasOpen}) {
-    const {props: {value}, state: {isOpen}} = this;
-    if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
+  componentDidUpdate() {
+    if (this.shouldFocus) {
       const {selector, value} = this;
+      this.shouldFocus = false;
       (selector || findDOMNode(value)).focus();
     }
   }
@@ -55,6 +55,7 @@ export default class extends Component {
   focus() {
     const {selector, value} = this;
     (selector || findDOMNode(value)).focus();
+    this.shouldFocus = true;
     this.open();
   }
 
@@ -77,9 +78,16 @@ export default class extends Component {
   }
 
   incrValue(dir) {
-    const {onChange, options, value} = this.props;
+    const {options, value} = this.props;
     const i = indexOf(options, value) + dir;
-    if (i >= 0 && i < options.length) onChange(options[i]);
+    if (i >= 0 && i < options.length) this.change(i);
+  }
+
+  change(index) {
+    const {onChange, onQuery, options} = this.props;
+    this.shouldFocus = true;
+    onQuery('');
+    onChange(options[index]);
   }
 
   handleClose() {
@@ -94,8 +102,7 @@ export default class extends Component {
   }
 
   handleSelect(index) {
-    const {onChange, options} = this.props;
-    onChange(options[index]);
+    this.change(index);
     this.close();
   }
 
@@ -109,7 +116,7 @@ export default class extends Component {
     switch (key) {
     case 'Enter':
     case ' ':
-      this.open();
+      this.focus();
       return ev.preventDefault();
     case 'Escape':
       if (this.state.isOpen) this.close();

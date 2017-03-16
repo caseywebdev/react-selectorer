@@ -21884,17 +21884,13 @@ var _class = function (_Component) {
 
   _createClass(_class, [{
     key: 'componentDidUpdate',
-    value: function componentDidUpdate(_ref2, _ref3) {
-      var oldValue = _ref2.value;
-      var wasOpen = _ref3.isOpen;
-      var value = this.props.value,
-          isOpen = this.state.isOpen;
-
-      if ((!wasOpen && oldValue != null) !== (!isOpen && value != null)) {
+    value: function componentDidUpdate() {
+      if (this.shouldFocus) {
         var selector = this.selector,
-            _value = this.value;
+            value = this.value;
 
-        (selector || (0, _reactDom.findDOMNode)(_value)).focus();
+        this.shouldFocus = false;
+        (selector || (0, _reactDom.findDOMNode)(value)).focus();
       }
     }
   }, {
@@ -21904,6 +21900,7 @@ var _class = function (_Component) {
           value = this.value;
 
       (selector || (0, _reactDom.findDOMNode)(value)).focus();
+      this.shouldFocus = true;
       this.open();
     }
   }, {
@@ -21935,12 +21932,23 @@ var _class = function (_Component) {
     key: 'incrValue',
     value: function incrValue(dir) {
       var _props = this.props,
-          onChange = _props.onChange,
           options = _props.options,
           value = _props.value;
 
       var i = (0, _indexOf2.default)(options, value) + dir;
-      if (i >= 0 && i < options.length) onChange(options[i]);
+      if (i >= 0 && i < options.length) this.change(i);
+    }
+  }, {
+    key: 'change',
+    value: function change(index) {
+      var _props2 = this.props,
+          onChange = _props2.onChange,
+          onQuery = _props2.onQuery,
+          options = _props2.options;
+
+      this.shouldFocus = true;
+      onQuery('');
+      onChange(options[index]);
     }
   }, {
     key: 'handleClose',
@@ -21951,9 +21959,9 @@ var _class = function (_Component) {
     key: 'handleOpen',
     value: function handleOpen() {
       this.open();
-      var _props2 = this.props,
-          options = _props2.options,
-          value = _props2.value;
+      var _props3 = this.props,
+          options = _props3.options,
+          value = _props3.value;
 
       var i = value == null ? undefined : (0, _indexOf2.default)(options, value);
       if (i != null) this.selector.setActiveIndex(i);
@@ -21961,11 +21969,7 @@ var _class = function (_Component) {
   }, {
     key: 'handleSelect',
     value: function handleSelect(index) {
-      var _props3 = this.props,
-          onChange = _props3.onChange,
-          options = _props3.options;
-
-      onChange(options[index]);
+      this.change(index);
       this.close();
     }
   }, {
@@ -21981,7 +21985,7 @@ var _class = function (_Component) {
       switch (key) {
         case 'Enter':
         case ' ':
-          this.open();
+          this.focus();
           return ev.preventDefault();
         case 'Escape':
           if (this.state.isOpen) this.close();else this.blur();
@@ -21996,10 +22000,10 @@ var _class = function (_Component) {
     }
   }, {
     key: 'renderOption',
-    value: function renderOption(_ref4) {
-      var props = _ref4.props,
-          index = _ref4.index,
-          isActive = _ref4.isActive;
+    value: function renderOption(_ref2) {
+      var props = _ref2.props,
+          index = _ref2.index,
+          isActive = _ref2.isActive;
       var _props4 = this.props,
           optionRenderer = _props4.optionRenderer,
           options = _props4.options,
@@ -22083,11 +22087,11 @@ _class.propTypes = {
   valueRenderer: _react.PropTypes.func.isRequired
 };
 _class.defaultProps = {
-  containerRenderer: function containerRenderer(_ref5) {
-    var props = _ref5.props,
-        input = _ref5.input,
-        options = _ref5.options,
-        value = _ref5.value;
+  containerRenderer: function containerRenderer(_ref3) {
+    var props = _ref3.props,
+        input = _ref3.input,
+        options = _ref3.options,
+        value = _ref3.value;
     return _react2.default.createElement(
       'div',
       _extends({}, props, { className: 'rs-container' }),
@@ -22096,11 +22100,11 @@ _class.defaultProps = {
       options
     );
   },
-  optionRenderer: function optionRenderer(_ref6) {
-    var props = _ref6.props,
-        value = _ref6.value,
-        isActive = _ref6.isActive,
-        isSelected = _ref6.isSelected;
+  optionRenderer: function optionRenderer(_ref4) {
+    var props = _ref4.props,
+        value = _ref4.value,
+        isActive = _ref4.isActive,
+        isSelected = _ref4.isSelected;
     return _react2.default.createElement(
       'div',
       _extends({}, props, {
@@ -22110,9 +22114,9 @@ _class.defaultProps = {
     );
   },
   query: '',
-  valueRenderer: function valueRenderer(_ref7) {
-    var props = _ref7.props,
-        value = _ref7.value;
+  valueRenderer: function valueRenderer(_ref5) {
+    var props = _ref5.props,
+        value = _ref5.value;
     return _react2.default.createElement(
       'div',
       _extends({}, props, { className: 'rs-value' }),
