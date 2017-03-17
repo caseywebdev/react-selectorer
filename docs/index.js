@@ -20894,13 +20894,11 @@ Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_mo
 
       var _this = _possibleConstructorReturn(this, (ReactList.__proto__ || Object.getPrototypeOf(ReactList)).call(this, props));
 
-      var _this$props = _this.props,
-          initialIndex = _this$props.initialIndex,
-          pageSize = _this$props.pageSize;
+      var initialIndex = props.initialIndex;
 
       var itemsPerRow = 1;
 
-      var _this$constrain = _this.constrain(initialIndex, pageSize, itemsPerRow, _this.props),
+      var _this$constrain = _this.constrain(initialIndex, 0, itemsPerRow, props),
           from = _this$constrain.from,
           size = _this$constrain.size;
 
@@ -21293,10 +21291,9 @@ Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_mo
       key: 'constrain',
       value: function constrain(from, size, itemsPerRow, _ref) {
         var length = _ref.length,
-            pageSize = _ref.pageSize,
             type = _ref.type;
 
-        size = Math.max(size, pageSize);
+        if (type === 'uniform') size = Math.max(size, 1);
         var mod = size % itemsPerRow;
         if (mod) size += itemsPerRow - mod;
         if (size > length) size = length;
@@ -21889,8 +21886,8 @@ var _class = function (_Component) {
         var selector = this.selector,
             value = this.value;
 
-        this.shouldFocus = false;
         (selector || (0, _reactDom.findDOMNode)(value)).focus();
+        this.shouldFocus = false;
       }
     }
   }, {
@@ -22034,7 +22031,7 @@ var _class = function (_Component) {
             ref: function ref(c) {
               return _this2.value = c;
             },
-            onClick: this.open.bind(this),
+            onClick: this.focus.bind(this),
             onKeyDown: this.handleKeyDown.bind(this),
             tabIndex: 0
           },

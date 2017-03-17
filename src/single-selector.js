@@ -47,8 +47,8 @@ export default class extends Component {
   componentDidUpdate() {
     if (this.shouldFocus) {
       const {selector, value} = this;
-      this.shouldFocus = false;
       (selector || findDOMNode(value)).focus();
+      this.shouldFocus = false;
     }
   }
 
@@ -147,7 +147,7 @@ export default class extends Component {
       value: valueRenderer({
         props: {
           ref: c => this.value = c,
-          onClick: ::this.open,
+          onClick: ::this.focus,
           onKeyDown: ::this.handleKeyDown,
           tabIndex: 0
         },
