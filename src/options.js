@@ -1,6 +1,7 @@
 import Option from './option';
 import ReactList from 'react-list';
-import React, {PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 const renderOption = (props, index, key) => {
   const {activeIndex, onActivate, onSelect, optionRenderer} = props;

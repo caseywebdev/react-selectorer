@@ -1839,7 +1839,6 @@ var ReactClassInterface = {
    *   }
    *
    * @return {ReactComponent}
-   * @nosideeffects
    * @required
    */
   render: 'DEFINE_ONCE',
@@ -2295,6 +2294,8 @@ var ReactClassMixin = {
 var ReactClassComponent = function () {};
 _assign(ReactClassComponent.prototype, ReactComponent.prototype, ReactClassMixin);
 
+var didWarnDeprecated = false;
+
 /**
  * Module for creating composite components.
  *
@@ -2311,6 +2312,11 @@ var ReactClass = {
    * @public
    */
   createClass: function (spec) {
+    if ('development' !== 'production') {
+      'development' !== 'production' ? warning(didWarnDeprecated, '%s: React.createClass is deprecated and will be removed in version 16. ' + 'Use plain JavaScript classes instead. If you\'re not yet ready to ' + 'migrate, create-react-class is available on npm as a ' + 'drop-in replacement.', spec && spec.displayName || 'A Component') : void 0;
+      didWarnDeprecated = true;
+    }
+
     // To keep our warnings more understandable, we'll use a little hack here to
     // ensure that Constructor.name !== 'Constructor'. This makes sure we don't
     // unnecessarily identify a class without displayName as 'Constructor'.
@@ -2884,6 +2890,16 @@ function getDeclarationErrorAddendum() {
   return '';
 }
 
+function getSourceInfoErrorAddendum(elementProps) {
+  if (elementProps !== null && elementProps !== undefined && elementProps.__source !== undefined) {
+    var source = elementProps.__source;
+    var fileName = source.fileName.replace(/^.*[\\\/]/, '');
+    var lineNumber = source.lineNumber;
+    return ' Check your code at ' + fileName + ':' + lineNumber + '.';
+  }
+  return '';
+}
+
 /**
  * Warn if there's no key explicitly set on dynamic arrays of children or
  * object keys are not valid. This allows us to keep track of children between
@@ -3014,7 +3030,16 @@ var ReactElementValidator = {
         if (type === undefined || typeof type === 'object' && type !== null && Object.keys(type).length === 0) {
           info += ' You likely forgot to export your component from the file ' + 'it\'s defined in.';
         }
-        info += getDeclarationErrorAddendum();
+
+        var sourceInfo = getSourceInfoErrorAddendum(props);
+        if (sourceInfo) {
+          info += sourceInfo;
+        } else {
+          info += getDeclarationErrorAddendum();
+        }
+
+        info += ReactComponentTreeHook.getCurrentStackAddendum();
+
         'development' !== 'production' ? warning(false, 'React.createElement: type is invalid -- expected a string (for ' + 'built-in components) or a class/function (for composite ' + 'components) but got: %s.%s', type == null ? type : typeof type, info) : void 0;
       }
     }
@@ -3250,7 +3275,575 @@ var ReactDOMFactories = {
 
 module.exports = ReactDOMFactories;
 });
-Cogs.define("node_modules/react/lib/ReactPropTypes.js", ["node_modules"], ["node_modules/react/lib/ReactPropTypes"], {"./ReactElement":"node_modules/react/lib/ReactElement.js","./ReactPropTypeLocationNames":"node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypesSecret":"node_modules/react/lib/ReactPropTypesSecret.js","fbjs/lib/emptyFunction":"node_modules/fbjs/lib/emptyFunction.js","./getIteratorFn":"node_modules/react/lib/getIteratorFn.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js"}, function (require, exports, module) {
+Cogs.define("node_modules/prop-types/lib/ReactPropTypesSecret.js", ["node_modules"], ["node_modules/prop-types/lib/ReactPropTypesSecret"], {}, function (require, exports, module) {
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+'use strict';
+
+var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
+
+module.exports = ReactPropTypesSecret;
+
+});
+Cogs.define("node_modules/prop-types/checkPropTypes.js", ["node_modules"], ["node_modules/prop-types/checkPropTypes"], {"fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js","./lib/ReactPropTypesSecret":"node_modules/prop-types/lib/ReactPropTypesSecret.js"}, function (require, exports, module) {
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+'use strict';
+
+var invariant = require('fbjs/lib/invariant');
+var warning = require('fbjs/lib/warning');
+
+var ReactPropTypesSecret = require('./lib/ReactPropTypesSecret');
+
+var loggedTypeFailures = {};
+
+/**
+ * Assert that the values match with the type specs.
+ * Error messages are memorized and will only be shown once.
+ *
+ * @param {object} typeSpecs Map of name to a ReactPropType
+ * @param {object} values Runtime values that need to be type-checked
+ * @param {string} location e.g. "prop", "context", "child context"
+ * @param {string} componentName Name of the component for error messages.
+ * @param {?Function} getStack Returns the component stack.
+ * @private
+ */
+function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
+  if ('development' !== 'production') {
+    for (var typeSpecName in typeSpecs) {
+      if (typeSpecs.hasOwnProperty(typeSpecName)) {
+        var error;
+        // Prop type validation may throw. In case they do, we don't want to
+        // fail the render phase where it didn't fail before. So we log it.
+        // After these have been cleaned up, we'll let them throw.
+        try {
+          // This is intentionally an invariant that gets caught. It's the same
+          // behavior as without this statement except with a better message.
+          invariant(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'React.PropTypes.', componentName || 'React class', location, typeSpecName);
+          error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
+        } catch (ex) {
+          error = ex;
+        }
+        'development' !== 'production' ? warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error) : void 0;
+        if (error instanceof Error && !(error.message in loggedTypeFailures)) {
+          // Only monitor this failure once because there tends to be a lot of the
+          // same error.
+          loggedTypeFailures[error.message] = true;
+
+          var stack = getStack ? getStack() : '';
+
+          'development' !== 'production' ? warning(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '') : void 0;
+        }
+      }
+    }
+  }
+}
+
+module.exports = checkPropTypes;
+
+});
+Cogs.define("node_modules/prop-types/factory.js", ["node_modules"], ["node_modules/prop-types/factory"], {"fbjs/lib/emptyFunction":"node_modules/fbjs/lib/emptyFunction.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js","./lib/ReactPropTypesSecret":"node_modules/prop-types/lib/ReactPropTypesSecret.js","./checkPropTypes":"node_modules/prop-types/checkPropTypes.js"}, function (require, exports, module) {
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+'use strict';
+
+var emptyFunction = require('fbjs/lib/emptyFunction');
+var invariant = require('fbjs/lib/invariant');
+var warning = require('fbjs/lib/warning');
+
+var ReactPropTypesSecret = require('./lib/ReactPropTypesSecret');
+var checkPropTypes = require('./checkPropTypes');
+
+module.exports = function (isValidElement) {
+  /* global Symbol */
+  var ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+  var FAUX_ITERATOR_SYMBOL = '@@iterator'; // Before Symbol spec.
+
+  /**
+   * Returns the iterator method function contained on the iterable object.
+   *
+   * Be sure to invoke the function with the iterable as context:
+   *
+   *     var iteratorFn = getIteratorFn(myIterable);
+   *     if (iteratorFn) {
+   *       var iterator = iteratorFn.call(myIterable);
+   *       ...
+   *     }
+   *
+   * @param {?object} maybeIterable
+   * @return {?function}
+   */
+  function getIteratorFn(maybeIterable) {
+    var iteratorFn = maybeIterable && (ITERATOR_SYMBOL && maybeIterable[ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL]);
+    if (typeof iteratorFn === 'function') {
+      return iteratorFn;
+    }
+  }
+
+  /**
+   * Collection of methods that allow declaration and validation of props that are
+   * supplied to React components. Example usage:
+   *
+   *   var Props = require('ReactPropTypes');
+   *   var MyArticle = React.createClass({
+   *     propTypes: {
+   *       // An optional string prop named "description".
+   *       description: Props.string,
+   *
+   *       // A required enum prop named "category".
+   *       category: Props.oneOf(['News','Photos']).isRequired,
+   *
+   *       // A prop named "dialog" that requires an instance of Dialog.
+   *       dialog: Props.instanceOf(Dialog).isRequired
+   *     },
+   *     render: function() { ... }
+   *   });
+   *
+   * A more formal specification of how these methods are used:
+   *
+   *   type := array|bool|func|object|number|string|oneOf([...])|instanceOf(...)
+   *   decl := ReactPropTypes.{type}(.isRequired)?
+   *
+   * Each and every declaration produces a function with the same signature. This
+   * allows the creation of custom validation functions. For example:
+   *
+   *  var MyLink = React.createClass({
+   *    propTypes: {
+   *      // An optional string or URI prop named "href".
+   *      href: function(props, propName, componentName) {
+   *        var propValue = props[propName];
+   *        if (propValue != null && typeof propValue !== 'string' &&
+   *            !(propValue instanceof URI)) {
+   *          return new Error(
+   *            'Expected a string or an URI for ' + propName + ' in ' +
+   *            componentName
+   *          );
+   *        }
+   *      }
+   *    },
+   *    render: function() {...}
+   *  });
+   *
+   * @internal
+   */
+
+  var ANONYMOUS = '<<anonymous>>';
+
+  var ReactPropTypes;
+
+  if ('development' !== 'production') {
+    // Keep in sync with production version below
+    ReactPropTypes = {
+      array: createPrimitiveTypeChecker('array'),
+      bool: createPrimitiveTypeChecker('boolean'),
+      func: createPrimitiveTypeChecker('function'),
+      number: createPrimitiveTypeChecker('number'),
+      object: createPrimitiveTypeChecker('object'),
+      string: createPrimitiveTypeChecker('string'),
+      symbol: createPrimitiveTypeChecker('symbol'),
+
+      any: createAnyTypeChecker(),
+      arrayOf: createArrayOfTypeChecker,
+      element: createElementTypeChecker(),
+      instanceOf: createInstanceTypeChecker,
+      node: createNodeChecker(),
+      objectOf: createObjectOfTypeChecker,
+      oneOf: createEnumTypeChecker,
+      oneOfType: createUnionTypeChecker,
+      shape: createShapeTypeChecker
+    };
+  } else {
+    var productionTypeChecker = function () {
+      invariant(false, 'React.PropTypes type checking code is stripped in production.');
+    };
+    productionTypeChecker.isRequired = productionTypeChecker;
+    var getProductionTypeChecker = function () {
+      return productionTypeChecker;
+    };
+    // Keep in sync with development version above
+    ReactPropTypes = {
+      array: productionTypeChecker,
+      bool: productionTypeChecker,
+      func: productionTypeChecker,
+      number: productionTypeChecker,
+      object: productionTypeChecker,
+      string: productionTypeChecker,
+      symbol: productionTypeChecker,
+
+      any: productionTypeChecker,
+      arrayOf: getProductionTypeChecker,
+      element: productionTypeChecker,
+      instanceOf: getProductionTypeChecker,
+      node: productionTypeChecker,
+      objectOf: getProductionTypeChecker,
+      oneOf: getProductionTypeChecker,
+      oneOfType: getProductionTypeChecker,
+      shape: getProductionTypeChecker
+    };
+  }
+
+  /**
+   * inlined Object.is polyfill to avoid requiring consumers ship their own
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+   */
+  /*eslint-disable no-self-compare*/
+  function is(x, y) {
+    // SameValue algorithm
+    if (x === y) {
+      // Steps 1-5, 7-10
+      // Steps 6.b-6.e: +0 != -0
+      return x !== 0 || 1 / x === 1 / y;
+    } else {
+      // Step 6.a: NaN == NaN
+      return x !== x && y !== y;
+    }
+  }
+  /*eslint-enable no-self-compare*/
+
+  /**
+   * We use an Error-like object for backward compatibility as people may call
+   * PropTypes directly and inspect their output. However, we don't use real
+   * Errors anymore. We don't inspect their stack anyway, and creating them
+   * is prohibitively expensive if they are created too often, such as what
+   * happens in oneOfType() for any type before the one that matched.
+   */
+  function PropTypeError(message) {
+    this.message = message;
+    this.stack = '';
+  }
+  // Make `instanceof Error` still work for returned errors.
+  PropTypeError.prototype = Error.prototype;
+
+  function createChainableTypeChecker(validate) {
+    if ('development' !== 'production') {
+      var manualPropTypeCallCache = {};
+    }
+    function checkType(isRequired, props, propName, componentName, location, propFullName, secret) {
+      componentName = componentName || ANONYMOUS;
+      propFullName = propFullName || propName;
+      if ('development' !== 'production') {
+        if (secret !== ReactPropTypesSecret && typeof console !== 'undefined') {
+          var cacheKey = componentName + ':' + propName;
+          if (!manualPropTypeCallCache[cacheKey]) {
+            'development' !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in production with the next major version. ' + 'You may be seeing this warning due to a third-party PropTypes ' + 'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.', propFullName, componentName) : void 0;
+            manualPropTypeCallCache[cacheKey] = true;
+          }
+        }
+      }
+      if (props[propName] == null) {
+        if (isRequired) {
+          if (props[propName] === null) {
+            return new PropTypeError('The ' + location + ' `' + propFullName + '` is marked as required ' + ('in `' + componentName + '`, but its value is `null`.'));
+          }
+          return new PropTypeError('The ' + location + ' `' + propFullName + '` is marked as required in ' + ('`' + componentName + '`, but its value is `undefined`.'));
+        }
+        return null;
+      } else {
+        return validate(props, propName, componentName, location, propFullName);
+      }
+    }
+
+    var chainedCheckType = checkType.bind(null, false);
+    chainedCheckType.isRequired = checkType.bind(null, true);
+
+    return chainedCheckType;
+  }
+
+  function createPrimitiveTypeChecker(expectedType) {
+    function validate(props, propName, componentName, location, propFullName, secret) {
+      var propValue = props[propName];
+      var propType = getPropType(propValue);
+      if (propType !== expectedType) {
+        // `propValue` being instance of, say, date/regexp, pass the 'object'
+        // check, but we can offer a more precise error message here rather than
+        // 'of type `object`'.
+        var preciseType = getPreciseType(propValue);
+
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + preciseType + '` supplied to `' + componentName + '`, expected ') + ('`' + expectedType + '`.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createAnyTypeChecker() {
+    return createChainableTypeChecker(emptyFunction.thatReturnsNull);
+  }
+
+  function createArrayOfTypeChecker(typeChecker) {
+    function validate(props, propName, componentName, location, propFullName) {
+      if (typeof typeChecker !== 'function') {
+        return new PropTypeError('Property `' + propFullName + '` of component `' + componentName + '` has invalid PropType notation inside arrayOf.');
+      }
+      var propValue = props[propName];
+      if (!Array.isArray(propValue)) {
+        var propType = getPropType(propValue);
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an array.'));
+      }
+      for (var i = 0; i < propValue.length; i++) {
+        var error = typeChecker(propValue, i, componentName, location, propFullName + '[' + i + ']', ReactPropTypesSecret);
+        if (error instanceof Error) {
+          return error;
+        }
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createElementTypeChecker() {
+    function validate(props, propName, componentName, location, propFullName) {
+      var propValue = props[propName];
+      if (!isValidElement(propValue)) {
+        var propType = getPropType(propValue);
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createInstanceTypeChecker(expectedClass) {
+    function validate(props, propName, componentName, location, propFullName) {
+      if (!(props[propName] instanceof expectedClass)) {
+        var expectedClassName = expectedClass.name || ANONYMOUS;
+        var actualClassName = getClassName(props[propName]);
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + actualClassName + '` supplied to `' + componentName + '`, expected ') + ('instance of `' + expectedClassName + '`.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createEnumTypeChecker(expectedValues) {
+    if (!Array.isArray(expectedValues)) {
+      'development' !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
+      return emptyFunction.thatReturnsNull;
+    }
+
+    function validate(props, propName, componentName, location, propFullName) {
+      var propValue = props[propName];
+      for (var i = 0; i < expectedValues.length; i++) {
+        if (is(propValue, expectedValues[i])) {
+          return null;
+        }
+      }
+
+      var valuesString = JSON.stringify(expectedValues);
+      return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of value `' + propValue + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createObjectOfTypeChecker(typeChecker) {
+    function validate(props, propName, componentName, location, propFullName) {
+      if (typeof typeChecker !== 'function') {
+        return new PropTypeError('Property `' + propFullName + '` of component `' + componentName + '` has invalid PropType notation inside objectOf.');
+      }
+      var propValue = props[propName];
+      var propType = getPropType(propValue);
+      if (propType !== 'object') {
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an object.'));
+      }
+      for (var key in propValue) {
+        if (propValue.hasOwnProperty(key)) {
+          var error = typeChecker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret);
+          if (error instanceof Error) {
+            return error;
+          }
+        }
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createUnionTypeChecker(arrayOfTypeCheckers) {
+    if (!Array.isArray(arrayOfTypeCheckers)) {
+      'development' !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
+      return emptyFunction.thatReturnsNull;
+    }
+
+    function validate(props, propName, componentName, location, propFullName) {
+      for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
+        var checker = arrayOfTypeCheckers[i];
+        if (checker(props, propName, componentName, location, propFullName, ReactPropTypesSecret) == null) {
+          return null;
+        }
+      }
+
+      return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` supplied to ' + ('`' + componentName + '`.'));
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createNodeChecker() {
+    function validate(props, propName, componentName, location, propFullName) {
+      if (!isNode(props[propName])) {
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` supplied to ' + ('`' + componentName + '`, expected a ReactNode.'));
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function createShapeTypeChecker(shapeTypes) {
+    function validate(props, propName, componentName, location, propFullName) {
+      var propValue = props[propName];
+      var propType = getPropType(propValue);
+      if (propType !== 'object') {
+        return new PropTypeError('Invalid ' + location + ' `' + propFullName + '` of type `' + propType + '` ' + ('supplied to `' + componentName + '`, expected `object`.'));
+      }
+      for (var key in shapeTypes) {
+        var checker = shapeTypes[key];
+        if (!checker) {
+          continue;
+        }
+        var error = checker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret);
+        if (error) {
+          return error;
+        }
+      }
+      return null;
+    }
+    return createChainableTypeChecker(validate);
+  }
+
+  function isNode(propValue) {
+    switch (typeof propValue) {
+      case 'number':
+      case 'string':
+      case 'undefined':
+        return true;
+      case 'boolean':
+        return !propValue;
+      case 'object':
+        if (Array.isArray(propValue)) {
+          return propValue.every(isNode);
+        }
+        if (propValue === null || isValidElement(propValue)) {
+          return true;
+        }
+
+        var iteratorFn = getIteratorFn(propValue);
+        if (iteratorFn) {
+          var iterator = iteratorFn.call(propValue);
+          var step;
+          if (iteratorFn !== propValue.entries) {
+            while (!(step = iterator.next()).done) {
+              if (!isNode(step.value)) {
+                return false;
+              }
+            }
+          } else {
+            // Iterator will provide entry [k,v] tuples rather than values.
+            while (!(step = iterator.next()).done) {
+              var entry = step.value;
+              if (entry) {
+                if (!isNode(entry[1])) {
+                  return false;
+                }
+              }
+            }
+          }
+        } else {
+          return false;
+        }
+
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  function isSymbol(propType, propValue) {
+    // Native Symbol.
+    if (propType === 'symbol') {
+      return true;
+    }
+
+    // 19.4.3.5 Symbol.prototype[@@toStringTag] === 'Symbol'
+    if (propValue['@@toStringTag'] === 'Symbol') {
+      return true;
+    }
+
+    // Fallback for non-spec compliant Symbols which are polyfilled.
+    if (typeof Symbol === 'function' && propValue instanceof Symbol) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Equivalent of `typeof` but with special handling for array and regexp.
+  function getPropType(propValue) {
+    var propType = typeof propValue;
+    if (Array.isArray(propValue)) {
+      return 'array';
+    }
+    if (propValue instanceof RegExp) {
+      // Old webkits (at least until Android 4.0) return 'function' rather than
+      // 'object' for typeof a RegExp. We'll normalize this here so that /bla/
+      // passes PropTypes.object.
+      return 'object';
+    }
+    if (isSymbol(propType, propValue)) {
+      return 'symbol';
+    }
+    return propType;
+  }
+
+  // This handles more types than `getPropType`. Only used for error messages.
+  // See `createPrimitiveTypeChecker`.
+  function getPreciseType(propValue) {
+    var propType = getPropType(propValue);
+    if (propType === 'object') {
+      if (propValue instanceof Date) {
+        return 'date';
+      } else if (propValue instanceof RegExp) {
+        return 'regexp';
+      }
+    }
+    return propType;
+  }
+
+  // Returns class name of the object, if any.
+  function getClassName(propValue) {
+    if (!propValue.constructor || !propValue.constructor.name) {
+      return ANONYMOUS;
+    }
+    return propValue.constructor.name;
+  }
+
+  ReactPropTypes.checkPropTypes = checkPropTypes;
+  ReactPropTypes.PropTypes = ReactPropTypes;
+
+  return ReactPropTypes;
+};
+
+});
+Cogs.define("node_modules/react/lib/ReactPropTypes.js", ["node_modules"], ["node_modules/react/lib/ReactPropTypes"], {"./ReactElement":"node_modules/react/lib/ReactElement.js","prop-types/factory":"node_modules/prop-types/factory.js"}, function (require, exports, module) {
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -3263,427 +3856,12 @@ Cogs.define("node_modules/react/lib/ReactPropTypes.js", ["node_modules"], ["node
 
 'use strict';
 
-var ReactElement = require('./ReactElement');
-var ReactPropTypeLocationNames = require('./ReactPropTypeLocationNames');
-var ReactPropTypesSecret = require('./ReactPropTypesSecret');
+var _require = require('./ReactElement'),
+    isValidElement = _require.isValidElement;
 
-var emptyFunction = require('fbjs/lib/emptyFunction');
-var getIteratorFn = require('./getIteratorFn');
-var warning = require('fbjs/lib/warning');
+var factory = require('prop-types/factory');
 
-/**
- * Collection of methods that allow declaration and validation of props that are
- * supplied to React components. Example usage:
- *
- *   var Props = require('ReactPropTypes');
- *   var MyArticle = React.createClass({
- *     propTypes: {
- *       // An optional string prop named "description".
- *       description: Props.string,
- *
- *       // A required enum prop named "category".
- *       category: Props.oneOf(['News','Photos']).isRequired,
- *
- *       // A prop named "dialog" that requires an instance of Dialog.
- *       dialog: Props.instanceOf(Dialog).isRequired
- *     },
- *     render: function() { ... }
- *   });
- *
- * A more formal specification of how these methods are used:
- *
- *   type := array|bool|func|object|number|string|oneOf([...])|instanceOf(...)
- *   decl := ReactPropTypes.{type}(.isRequired)?
- *
- * Each and every declaration produces a function with the same signature. This
- * allows the creation of custom validation functions. For example:
- *
- *  var MyLink = React.createClass({
- *    propTypes: {
- *      // An optional string or URI prop named "href".
- *      href: function(props, propName, componentName) {
- *        var propValue = props[propName];
- *        if (propValue != null && typeof propValue !== 'string' &&
- *            !(propValue instanceof URI)) {
- *          return new Error(
- *            'Expected a string or an URI for ' + propName + ' in ' +
- *            componentName
- *          );
- *        }
- *      }
- *    },
- *    render: function() {...}
- *  });
- *
- * @internal
- */
-
-var ANONYMOUS = '<<anonymous>>';
-
-var ReactPropTypes = {
-  array: createPrimitiveTypeChecker('array'),
-  bool: createPrimitiveTypeChecker('boolean'),
-  func: createPrimitiveTypeChecker('function'),
-  number: createPrimitiveTypeChecker('number'),
-  object: createPrimitiveTypeChecker('object'),
-  string: createPrimitiveTypeChecker('string'),
-  symbol: createPrimitiveTypeChecker('symbol'),
-
-  any: createAnyTypeChecker(),
-  arrayOf: createArrayOfTypeChecker,
-  element: createElementTypeChecker(),
-  instanceOf: createInstanceTypeChecker,
-  node: createNodeChecker(),
-  objectOf: createObjectOfTypeChecker,
-  oneOf: createEnumTypeChecker,
-  oneOfType: createUnionTypeChecker,
-  shape: createShapeTypeChecker
-};
-
-/**
- * inlined Object.is polyfill to avoid requiring consumers ship their own
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
- */
-/*eslint-disable no-self-compare*/
-function is(x, y) {
-  // SameValue algorithm
-  if (x === y) {
-    // Steps 1-5, 7-10
-    // Steps 6.b-6.e: +0 != -0
-    return x !== 0 || 1 / x === 1 / y;
-  } else {
-    // Step 6.a: NaN == NaN
-    return x !== x && y !== y;
-  }
-}
-/*eslint-enable no-self-compare*/
-
-/**
- * We use an Error-like object for backward compatibility as people may call
- * PropTypes directly and inspect their output. However we don't use real
- * Errors anymore. We don't inspect their stack anyway, and creating them
- * is prohibitively expensive if they are created too often, such as what
- * happens in oneOfType() for any type before the one that matched.
- */
-function PropTypeError(message) {
-  this.message = message;
-  this.stack = '';
-}
-// Make `instanceof Error` still work for returned errors.
-PropTypeError.prototype = Error.prototype;
-
-function createChainableTypeChecker(validate) {
-  if ('development' !== 'production') {
-    var manualPropTypeCallCache = {};
-  }
-  function checkType(isRequired, props, propName, componentName, location, propFullName, secret) {
-    componentName = componentName || ANONYMOUS;
-    propFullName = propFullName || propName;
-    if ('development' !== 'production') {
-      if (secret !== ReactPropTypesSecret && typeof console !== 'undefined') {
-        var cacheKey = componentName + ':' + propName;
-        if (!manualPropTypeCallCache[cacheKey]) {
-          'development' !== 'production' ? warning(false, 'You are manually calling a React.PropTypes validation ' + 'function for the `%s` prop on `%s`. This is deprecated ' + 'and will not work in production with the next major version. ' + 'You may be seeing this warning due to a third-party PropTypes ' + 'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.', propFullName, componentName) : void 0;
-          manualPropTypeCallCache[cacheKey] = true;
-        }
-      }
-    }
-    if (props[propName] == null) {
-      var locationName = ReactPropTypeLocationNames[location];
-      if (isRequired) {
-        if (props[propName] === null) {
-          return new PropTypeError('The ' + locationName + ' `' + propFullName + '` is marked as required ' + ('in `' + componentName + '`, but its value is `null`.'));
-        }
-        return new PropTypeError('The ' + locationName + ' `' + propFullName + '` is marked as required in ' + ('`' + componentName + '`, but its value is `undefined`.'));
-      }
-      return null;
-    } else {
-      return validate(props, propName, componentName, location, propFullName);
-    }
-  }
-
-  var chainedCheckType = checkType.bind(null, false);
-  chainedCheckType.isRequired = checkType.bind(null, true);
-
-  return chainedCheckType;
-}
-
-function createPrimitiveTypeChecker(expectedType) {
-  function validate(props, propName, componentName, location, propFullName, secret) {
-    var propValue = props[propName];
-    var propType = getPropType(propValue);
-    if (propType !== expectedType) {
-      var locationName = ReactPropTypeLocationNames[location];
-      // `propValue` being instance of, say, date/regexp, pass the 'object'
-      // check, but we can offer a more precise error message here rather than
-      // 'of type `object`'.
-      var preciseType = getPreciseType(propValue);
-
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type ' + ('`' + preciseType + '` supplied to `' + componentName + '`, expected ') + ('`' + expectedType + '`.'));
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createAnyTypeChecker() {
-  return createChainableTypeChecker(emptyFunction.thatReturns(null));
-}
-
-function createArrayOfTypeChecker(typeChecker) {
-  function validate(props, propName, componentName, location, propFullName) {
-    if (typeof typeChecker !== 'function') {
-      return new PropTypeError('Property `' + propFullName + '` of component `' + componentName + '` has invalid PropType notation inside arrayOf.');
-    }
-    var propValue = props[propName];
-    if (!Array.isArray(propValue)) {
-      var locationName = ReactPropTypeLocationNames[location];
-      var propType = getPropType(propValue);
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an array.'));
-    }
-    for (var i = 0; i < propValue.length; i++) {
-      var error = typeChecker(propValue, i, componentName, location, propFullName + '[' + i + ']', ReactPropTypesSecret);
-      if (error instanceof Error) {
-        return error;
-      }
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createElementTypeChecker() {
-  function validate(props, propName, componentName, location, propFullName) {
-    var propValue = props[propName];
-    if (!ReactElement.isValidElement(propValue)) {
-      var locationName = ReactPropTypeLocationNames[location];
-      var propType = getPropType(propValue);
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected a single ReactElement.'));
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createInstanceTypeChecker(expectedClass) {
-  function validate(props, propName, componentName, location, propFullName) {
-    if (!(props[propName] instanceof expectedClass)) {
-      var locationName = ReactPropTypeLocationNames[location];
-      var expectedClassName = expectedClass.name || ANONYMOUS;
-      var actualClassName = getClassName(props[propName]);
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type ' + ('`' + actualClassName + '` supplied to `' + componentName + '`, expected ') + ('instance of `' + expectedClassName + '`.'));
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createEnumTypeChecker(expectedValues) {
-  if (!Array.isArray(expectedValues)) {
-    'development' !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
-    return emptyFunction.thatReturnsNull;
-  }
-
-  function validate(props, propName, componentName, location, propFullName) {
-    var propValue = props[propName];
-    for (var i = 0; i < expectedValues.length; i++) {
-      if (is(propValue, expectedValues[i])) {
-        return null;
-      }
-    }
-
-    var locationName = ReactPropTypeLocationNames[location];
-    var valuesString = JSON.stringify(expectedValues);
-    return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of value `' + propValue + '` ' + ('supplied to `' + componentName + '`, expected one of ' + valuesString + '.'));
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createObjectOfTypeChecker(typeChecker) {
-  function validate(props, propName, componentName, location, propFullName) {
-    if (typeof typeChecker !== 'function') {
-      return new PropTypeError('Property `' + propFullName + '` of component `' + componentName + '` has invalid PropType notation inside objectOf.');
-    }
-    var propValue = props[propName];
-    var propType = getPropType(propValue);
-    if (propType !== 'object') {
-      var locationName = ReactPropTypeLocationNames[location];
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type ' + ('`' + propType + '` supplied to `' + componentName + '`, expected an object.'));
-    }
-    for (var key in propValue) {
-      if (propValue.hasOwnProperty(key)) {
-        var error = typeChecker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret);
-        if (error instanceof Error) {
-          return error;
-        }
-      }
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createUnionTypeChecker(arrayOfTypeCheckers) {
-  if (!Array.isArray(arrayOfTypeCheckers)) {
-    'development' !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
-    return emptyFunction.thatReturnsNull;
-  }
-
-  function validate(props, propName, componentName, location, propFullName) {
-    for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
-      var checker = arrayOfTypeCheckers[i];
-      if (checker(props, propName, componentName, location, propFullName, ReactPropTypesSecret) == null) {
-        return null;
-      }
-    }
-
-    var locationName = ReactPropTypeLocationNames[location];
-    return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` supplied to ' + ('`' + componentName + '`.'));
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createNodeChecker() {
-  function validate(props, propName, componentName, location, propFullName) {
-    if (!isNode(props[propName])) {
-      var locationName = ReactPropTypeLocationNames[location];
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` supplied to ' + ('`' + componentName + '`, expected a ReactNode.'));
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function createShapeTypeChecker(shapeTypes) {
-  function validate(props, propName, componentName, location, propFullName) {
-    var propValue = props[propName];
-    var propType = getPropType(propValue);
-    if (propType !== 'object') {
-      var locationName = ReactPropTypeLocationNames[location];
-      return new PropTypeError('Invalid ' + locationName + ' `' + propFullName + '` of type `' + propType + '` ' + ('supplied to `' + componentName + '`, expected `object`.'));
-    }
-    for (var key in shapeTypes) {
-      var checker = shapeTypes[key];
-      if (!checker) {
-        continue;
-      }
-      var error = checker(propValue, key, componentName, location, propFullName + '.' + key, ReactPropTypesSecret);
-      if (error) {
-        return error;
-      }
-    }
-    return null;
-  }
-  return createChainableTypeChecker(validate);
-}
-
-function isNode(propValue) {
-  switch (typeof propValue) {
-    case 'number':
-    case 'string':
-    case 'undefined':
-      return true;
-    case 'boolean':
-      return !propValue;
-    case 'object':
-      if (Array.isArray(propValue)) {
-        return propValue.every(isNode);
-      }
-      if (propValue === null || ReactElement.isValidElement(propValue)) {
-        return true;
-      }
-
-      var iteratorFn = getIteratorFn(propValue);
-      if (iteratorFn) {
-        var iterator = iteratorFn.call(propValue);
-        var step;
-        if (iteratorFn !== propValue.entries) {
-          while (!(step = iterator.next()).done) {
-            if (!isNode(step.value)) {
-              return false;
-            }
-          }
-        } else {
-          // Iterator will provide entry [k,v] tuples rather than values.
-          while (!(step = iterator.next()).done) {
-            var entry = step.value;
-            if (entry) {
-              if (!isNode(entry[1])) {
-                return false;
-              }
-            }
-          }
-        }
-      } else {
-        return false;
-      }
-
-      return true;
-    default:
-      return false;
-  }
-}
-
-function isSymbol(propType, propValue) {
-  // Native Symbol.
-  if (propType === 'symbol') {
-    return true;
-  }
-
-  // 19.4.3.5 Symbol.prototype[@@toStringTag] === 'Symbol'
-  if (propValue['@@toStringTag'] === 'Symbol') {
-    return true;
-  }
-
-  // Fallback for non-spec compliant Symbols which are polyfilled.
-  if (typeof Symbol === 'function' && propValue instanceof Symbol) {
-    return true;
-  }
-
-  return false;
-}
-
-// Equivalent of `typeof` but with special handling for array and regexp.
-function getPropType(propValue) {
-  var propType = typeof propValue;
-  if (Array.isArray(propValue)) {
-    return 'array';
-  }
-  if (propValue instanceof RegExp) {
-    // Old webkits (at least until Android 4.0) return 'function' rather than
-    // 'object' for typeof a RegExp. We'll normalize this here so that /bla/
-    // passes PropTypes.object.
-    return 'object';
-  }
-  if (isSymbol(propType, propValue)) {
-    return 'symbol';
-  }
-  return propType;
-}
-
-// This handles more types than `getPropType`. Only used for error messages.
-// See `createPrimitiveTypeChecker`.
-function getPreciseType(propValue) {
-  var propType = getPropType(propValue);
-  if (propType === 'object') {
-    if (propValue instanceof Date) {
-      return 'date';
-    } else if (propValue instanceof RegExp) {
-      return 'regexp';
-    }
-  }
-  return propType;
-}
-
-// Returns class name of the object, if any.
-function getClassName(propValue) {
-  if (!propValue.constructor || !propValue.constructor.name) {
-    return ANONYMOUS;
-  }
-  return propValue.constructor.name;
-}
-
-module.exports = ReactPropTypes;
+module.exports = factory(isValidElement);
 });
 Cogs.define("node_modules/react/lib/ReactVersion.js", ["node_modules"], ["node_modules/react/lib/ReactVersion"], {}, function (require, exports, module) {
 /**
@@ -3698,7 +3876,7 @@ Cogs.define("node_modules/react/lib/ReactVersion.js", ["node_modules"], ["node_m
 
 'use strict';
 
-module.exports = '15.4.2';
+module.exports = '15.5.3';
 });
 Cogs.define("node_modules/react/lib/onlyChild.js", ["node_modules"], ["node_modules/react/lib/onlyChild"], {"./reactProdInvariant":"node_modules/react/lib/reactProdInvariant.js","./ReactElement":"node_modules/react/lib/ReactElement.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js"}, function (require, exports, module) {
 /**
@@ -3739,7 +3917,7 @@ function onlyChild(children) {
 
 module.exports = onlyChild;
 });
-Cogs.define("node_modules/react/lib/React.js", ["node_modules"], ["node_modules/react/lib/React"], {"object-assign":"node_modules/object-assign/index.js","./ReactChildren":"node_modules/react/lib/ReactChildren.js","./ReactComponent":"node_modules/react/lib/ReactComponent.js","./ReactPureComponent":"node_modules/react/lib/ReactPureComponent.js","./ReactClass":"node_modules/react/lib/ReactClass.js","./ReactDOMFactories":"node_modules/react/lib/ReactDOMFactories.js","./ReactElement":"node_modules/react/lib/ReactElement.js","./ReactPropTypes":"node_modules/react/lib/ReactPropTypes.js","./ReactVersion":"node_modules/react/lib/ReactVersion.js","./onlyChild":"node_modules/react/lib/onlyChild.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js","./ReactElementValidator":"node_modules/react/lib/ReactElementValidator.js"}, function (require, exports, module) {
+Cogs.define("node_modules/react/lib/React.js", ["node_modules"], ["node_modules/react/lib/React"], {"object-assign":"node_modules/object-assign/index.js","./ReactChildren":"node_modules/react/lib/ReactChildren.js","./ReactComponent":"node_modules/react/lib/ReactComponent.js","./ReactPureComponent":"node_modules/react/lib/ReactPureComponent.js","./ReactClass":"node_modules/react/lib/ReactClass.js","./ReactDOMFactories":"node_modules/react/lib/ReactDOMFactories.js","./ReactElement":"node_modules/react/lib/ReactElement.js","./ReactPropTypes":"node_modules/react/lib/ReactPropTypes.js","./ReactVersion":"node_modules/react/lib/ReactVersion.js","./onlyChild":"node_modules/react/lib/onlyChild.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js","./canDefineProperty":"node_modules/react/lib/canDefineProperty.js","./ReactElementValidator":"node_modules/react/lib/ReactElementValidator.js"}, function (require, exports, module) {
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -3771,7 +3949,9 @@ var createFactory = ReactElement.createFactory;
 var cloneElement = ReactElement.cloneElement;
 
 if ('development' !== 'production') {
+  var canDefineProperty = require('./canDefineProperty');
   var ReactElementValidator = require('./ReactElementValidator');
+  var didWarnPropTypesDeprecated = false;
   createElement = ReactElementValidator.createElement;
   createFactory = ReactElementValidator.createFactory;
   cloneElement = ReactElementValidator.cloneElement;
@@ -3826,6 +4006,19 @@ var React = {
   // Deprecated hook for JSX spread, don't use this for anything.
   __spread: __spread
 };
+
+// TODO: Fix tests so that this deprecation warning doesn't cause failures.
+if ('development' !== 'production') {
+  if (canDefineProperty) {
+    Object.defineProperty(React, 'PropTypes', {
+      get: function () {
+        'development' !== 'production' ? warning(didWarnPropTypesDeprecated, 'Accessing PropTypes via the main React package is deprecated. Use ' + 'the prop-types package from npm instead.') : void 0;
+        didWarnPropTypesDeprecated = true;
+        return ReactPropTypes;
+      }
+    });
+  }
+}
 
 module.exports = React;
 });
@@ -4700,7 +4893,6 @@ if ('development' !== 'production') {
       var evtType = 'react-' + name;
       fakeNode.addEventListener(evtType, boundFunc, false);
       var evt = document.createEvent('Event');
-      // $FlowFixMe https://github.com/facebook/flow/issues/2336
       evt.initEvent(evtType, false, false);
       fakeNode.dispatchEvent(evt);
       fakeNode.removeEventListener(evtType, boundFunc, false);
@@ -7093,9 +7285,7 @@ function resumeCurrentLifeCycleTimer() {
 }
 
 var lastMarkTimeStamp = 0;
-var canUsePerformanceMeasure =
-// $FlowFixMe https://github.com/facebook/flow/issues/2345
-typeof performance !== 'undefined' && typeof performance.mark === 'function' && typeof performance.clearMarks === 'function' && typeof performance.measure === 'function' && typeof performance.clearMeasures === 'function';
+var canUsePerformanceMeasure = typeof performance !== 'undefined' && typeof performance.mark === 'function' && typeof performance.clearMarks === 'function' && typeof performance.measure === 'function' && typeof performance.clearMeasures === 'function';
 
 function shouldMark(debugID) {
   if (!isProfiling || !canUsePerformanceMeasure) {
@@ -8363,6 +8553,26 @@ function getTargetInstForClickEvent(topLevelType, targetInst) {
   }
 }
 
+function handleControlledInputBlur(inst, node) {
+  // TODO: In IE, inst is occasionally null. Why?
+  if (inst == null) {
+    return;
+  }
+
+  // Fiber and ReactDOM keep wrapper state in separate places
+  var state = inst._wrapperState || node._wrapperState;
+
+  if (!state || !state.controlled || node.type !== 'number') {
+    return;
+  }
+
+  // If controlled, assign the value attribute to the current value on blur
+  var value = '' + node.value;
+  if (node.getAttribute('value') !== value) {
+    node.setAttribute('value', value);
+  }
+}
+
 /**
  * This plugin creates an `onChange` event that normalizes change events
  * across form elements. This event fires at a time when it's possible to
@@ -8410,6 +8620,11 @@ var ChangeEventPlugin = {
 
     if (handleEventFunc) {
       handleEventFunc(topLevelType, targetNode, targetInst);
+    }
+
+    // When blurring, set the value attribute for number inputs
+    if (topLevelType === 'topBlur') {
+      handleControlledInputBlur(targetInst, targetNode);
     }
   }
 
@@ -8958,7 +9173,31 @@ var HTMLDOMPropertyConfig = {
     htmlFor: 'for',
     httpEquiv: 'http-equiv'
   },
-  DOMPropertyNames: {}
+  DOMPropertyNames: {},
+  DOMMutationMethods: {
+    value: function (node, value) {
+      if (value == null) {
+        return node.removeAttribute('value');
+      }
+
+      // Number inputs get special treatment due to some edge cases in
+      // Chrome. Let everything else assign the value attribute as normal.
+      // https://github.com/facebook/react/issues/7253#issuecomment-236074326
+      if (node.type !== 'number' || node.hasAttribute('value') === false) {
+        node.setAttribute('value', '' + value);
+      } else if (node.validity && !node.validity.badInput && node.ownerDocument.activeElement !== node) {
+        // Don't assign an attribute if validation reports bad
+        // input. Chrome will clear the value. Additionally, don't
+        // operate on inputs that have focus, otherwise Chrome might
+        // strip off trailing decimal places and cause the user's
+        // cursor position to jump to the beginning of the input.
+        //
+        // In ReactDOMInput, we have an onBlur event that will trigger
+        // this function again when focus is lost.
+        node.setAttribute('value', '' + value);
+      }
+    }
+  }
 };
 
 module.exports = HTMLDOMPropertyConfig;
@@ -11481,7 +11720,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
 });
-Cogs.define("node_modules/react-dom/lib/LinkedValueUtils.js", ["node_modules"], ["node_modules/react-dom/lib/LinkedValueUtils"], {"./reactProdInvariant":"node_modules/react-dom/lib/reactProdInvariant.js","react/lib/React":"node_modules/react/lib/React.js","./ReactPropTypesSecret":"node_modules/react-dom/lib/ReactPropTypesSecret.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js"}, function (require, exports, module) {
+Cogs.define("node_modules/react-dom/lib/LinkedValueUtils.js", ["node_modules"], ["node_modules/react-dom/lib/LinkedValueUtils"], {"./reactProdInvariant":"node_modules/react-dom/lib/reactProdInvariant.js","./ReactPropTypesSecret":"node_modules/react-dom/lib/ReactPropTypesSecret.js","prop-types/factory":"node_modules/prop-types/factory.js","react/lib/React":"node_modules/react/lib/React.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js"}, function (require, exports, module) {
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -11496,8 +11735,11 @@ Cogs.define("node_modules/react-dom/lib/LinkedValueUtils.js", ["node_modules"], 
 
 var _prodInvariant = require('./reactProdInvariant');
 
-var React = require('react/lib/React');
 var ReactPropTypesSecret = require('./ReactPropTypesSecret');
+var propTypesFactory = require('prop-types/factory');
+
+var React = require('react/lib/React');
+var PropTypes = propTypesFactory(React.isValidElement);
 
 var invariant = require('fbjs/lib/invariant');
 var warning = require('fbjs/lib/warning');
@@ -11538,7 +11780,7 @@ var propTypes = {
     }
     return new Error('You provided a `checked` prop to a form field without an ' + '`onChange` handler. This will render a read-only field. If ' + 'the field should be mutable use `defaultChecked`. Otherwise, ' + 'set either `onChange` or `readOnly`.');
   },
-  onChange: React.PropTypes.func
+  onChange: PropTypes.func
 };
 
 var loggedTypeFailures = {};
@@ -11732,12 +11974,9 @@ var ReactDOMInput = {
       initialChecked: props.checked != null ? props.checked : props.defaultChecked,
       initialValue: props.value != null ? props.value : defaultValue,
       listeners: null,
-      onChange: _handleChange.bind(inst)
+      onChange: _handleChange.bind(inst),
+      controlled: isControlled(props)
     };
-
-    if ('development' !== 'production') {
-      inst._wrapperState.controlled = isControlled(props);
-    }
   },
 
   updateWrapper: function (inst) {
@@ -11766,14 +12005,24 @@ var ReactDOMInput = {
     var node = ReactDOMComponentTree.getNodeFromInstance(inst);
     var value = LinkedValueUtils.getValue(props);
     if (value != null) {
+      if (value === 0 && node.value === '') {
+        node.value = '0';
+        // Note: IE9 reports a number inputs as 'text', so check props instead.
+      } else if (props.type === 'number') {
+        // Simulate `input.valueAsNumber`. IE9 does not support it
+        var valueAsNumber = parseFloat(node.value, 10) || 0;
 
-      // Cast `value` to a string to ensure the value is set correctly. While
-      // browsers typically do this as necessary, jsdom doesn't.
-      var newValue = '' + value;
-
-      // To avoid side effects (such as losing text selection), only set value if changed
-      if (newValue !== node.value) {
-        node.value = newValue;
+        // eslint-disable-next-line
+        if (value != valueAsNumber) {
+          // Cast `value` to a string to ensure the value is set correctly. While
+          // browsers typically do this as necessary, jsdom doesn't.
+          node.value = '' + value;
+        }
+        // eslint-disable-next-line
+      } else if (value != node.value) {
+        // Cast `value` to a string to ensure the value is set correctly. While
+        // browsers typically do this as necessary, jsdom doesn't.
+        node.value = '' + value;
       }
     } else {
       if (props.value == null && props.defaultValue != null) {
@@ -13262,7 +13511,7 @@ var ReactCompositeComponent = {
     if (childContext) {
       !(typeof Component.childContextTypes === 'object') ? 'development' !== 'production' ? invariant(false, '%s.getChildContext(): childContextTypes must be defined in order to use getChildContext().', this.getName() || 'ReactCompositeComponent') : _prodInvariant('107', this.getName() || 'ReactCompositeComponent') : void 0;
       if ('development' !== 'production') {
-        this._checkContextTypes(Component.childContextTypes, childContext, 'childContext');
+        this._checkContextTypes(Component.childContextTypes, childContext, 'child context');
       }
       for (var name in childContext) {
         !(name in Component.childContextTypes) ? 'development' !== 'production' ? invariant(false, '%s.getChildContext(): key "%s" is not defined in childContextTypes.', this.getName() || 'ReactCompositeComponent', name) : _prodInvariant('108', this.getName() || 'ReactCompositeComponent', name) : void 0;
@@ -13748,7 +13997,7 @@ var ReactHostComponent = {
 
 module.exports = ReactHostComponent;
 });
-Cogs.define("node_modules/react-dom/lib/getNextDebugID.js", ["node_modules"], ["node_modules/react-dom/lib/getNextDebugID"], {}, function (require, exports, module) {
+Cogs.define("node_modules/react/lib/getNextDebugID.js", ["node_modules"], ["node_modules/react/lib/getNextDebugID"], {}, function (require, exports, module) {
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -13770,7 +14019,7 @@ function getNextDebugID() {
 
 module.exports = getNextDebugID;
 });
-Cogs.define("node_modules/react-dom/lib/instantiateReactComponent.js", ["node_modules"], ["node_modules/react-dom/lib/instantiateReactComponent"], {"./reactProdInvariant":"node_modules/react-dom/lib/reactProdInvariant.js","object-assign":"node_modules/object-assign/index.js","./ReactCompositeComponent":"node_modules/react-dom/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"node_modules/react-dom/lib/ReactEmptyComponent.js","./ReactHostComponent":"node_modules/react-dom/lib/ReactHostComponent.js","./getNextDebugID":"node_modules/react-dom/lib/getNextDebugID.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js"}, function (require, exports, module) {
+Cogs.define("node_modules/react-dom/lib/instantiateReactComponent.js", ["node_modules"], ["node_modules/react-dom/lib/instantiateReactComponent"], {"./reactProdInvariant":"node_modules/react-dom/lib/reactProdInvariant.js","object-assign":"node_modules/object-assign/index.js","./ReactCompositeComponent":"node_modules/react-dom/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"node_modules/react-dom/lib/ReactEmptyComponent.js","./ReactHostComponent":"node_modules/react-dom/lib/ReactHostComponent.js","react/lib/getNextDebugID":"node_modules/react/lib/getNextDebugID.js","fbjs/lib/invariant":"node_modules/fbjs/lib/invariant.js","fbjs/lib/warning":"node_modules/fbjs/lib/warning.js"}, function (require, exports, module) {
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -13790,7 +14039,7 @@ var ReactCompositeComponent = require('./ReactCompositeComponent');
 var ReactEmptyComponent = require('./ReactEmptyComponent');
 var ReactHostComponent = require('./ReactHostComponent');
 
-var getNextDebugID = require('./getNextDebugID');
+var getNextDebugID = require('react/lib/getNextDebugID');
 var invariant = require('fbjs/lib/invariant');
 var warning = require('fbjs/lib/warning');
 
@@ -13798,9 +14047,6 @@ var warning = require('fbjs/lib/warning');
 var ReactCompositeComponentWrapper = function (element) {
   this.construct(element);
 };
-_assign(ReactCompositeComponentWrapper.prototype, ReactCompositeComponent, {
-  _instantiateReactComponent: instantiateReactComponent
-});
 
 function getDeclarationErrorAddendum(owner) {
   if (owner) {
@@ -13896,6 +14142,10 @@ function instantiateReactComponent(node, shouldHaveDebugID) {
 
   return instance;
 }
+
+_assign(ReactCompositeComponentWrapper.prototype, ReactCompositeComponent, {
+  _instantiateReactComponent: instantiateReactComponent
+});
 
 module.exports = instantiateReactComponent;
 });
@@ -15053,7 +15303,7 @@ var ReactUpdateQueue = {
    * @param {object} completeState Next state.
    * @internal
    */
-  enqueueReplaceState: function (publicInstance, completeState) {
+  enqueueReplaceState: function (publicInstance, completeState, callback) {
     var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'replaceState');
 
     if (!internalInstance) {
@@ -15062,6 +15312,16 @@ var ReactUpdateQueue = {
 
     internalInstance._pendingStateQueue = [completeState];
     internalInstance._pendingReplaceState = true;
+
+    // Future-proof 15.5
+    if (callback !== undefined && callback !== null) {
+      ReactUpdateQueue.validateCallback(callback, 'replaceState');
+      if (internalInstance._pendingCallbacks) {
+        internalInstance._pendingCallbacks.push(callback);
+      } else {
+        internalInstance._pendingCallbacks = [callback];
+      }
+    }
 
     enqueueUpdate(internalInstance);
   },
@@ -15567,16 +15827,11 @@ if ('development' !== 'production') {
       case 'section':
       case 'summary':
       case 'ul':
-
       case 'pre':
       case 'listing':
-
       case 'table':
-
       case 'hr':
-
       case 'xmp':
-
       case 'h1':
       case 'h2':
       case 'h3':
@@ -20238,7 +20493,7 @@ Cogs.define("node_modules/react-dom/lib/ReactVersion.js", ["node_modules"], ["no
 
 'use strict';
 
-module.exports = '15.4.2';
+module.exports = '15.5.3';
 });
 Cogs.define("node_modules/react-dom/lib/getHostComponentFromComposite.js", ["node_modules"], ["node_modules/react-dom/lib/getHostComponentFromComposite"], {"./ReactNodeTypes":"node_modules/react-dom/lib/ReactNodeTypes.js"}, function (require, exports, module) {
 /**
@@ -20718,14 +20973,44 @@ Cogs.define("node_modules/react-dom/index.js", ["node_modules"], ["node_modules/
 module.exports = require('./lib/ReactDOM');
 
 });
-Cogs.define("src/option.js", ["node_modules"], ["src/option"], {"react":"node_modules/react/react.js"}, function (require, exports, module) {
+Cogs.define("node_modules/prop-types/index.js", ["node_modules"], ["node_modules/prop-types/index","node_modules/prop-types"], {"./factory":"node_modules/prop-types/factory.js"}, function (require, exports, module) {
+/**
+ * Copyright 2013-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+var factory = require('./factory');
+
+var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' &&
+  Symbol.for &&
+  Symbol.for('react.element')) ||
+  0xeac7;
+
+function isValidElement(object) {
+  return typeof object === 'object' &&
+    object !== null &&
+    object.$$typeof === REACT_ELEMENT_TYPE;
+}
+
+module.exports = factory(isValidElement);
+
+});
+Cogs.define("src/option.js", ["node_modules"], ["src/option"], {"prop-types":"node_modules/prop-types/index.js"}, function (require, exports, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require('react');
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var LAST_MOUSE = { x: 0, y: 0 };
 
@@ -20757,33 +21042,35 @@ var Component = function Component(props) {
 };
 
 Component.propTypes = {
-  index: _react.PropTypes.number.isRequired,
-  isActive: _react.PropTypes.bool.isRequired,
-  onActivate: _react.PropTypes.func.isRequired,
-  onSelect: _react.PropTypes.func.isRequired,
-  renderer: _react.PropTypes.func.isRequired
+  index: _propTypes2.default.number.isRequired,
+  isActive: _propTypes2.default.bool.isRequired,
+  onActivate: _propTypes2.default.func.isRequired,
+  onSelect: _propTypes2.default.func.isRequired,
+  renderer: _propTypes2.default.func.isRequired
 };
 
 exports.default = Component;
 
 });
-Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_modules/react-list/react-list","node_modules/react-list"], {"react":"node_modules/react/react.js","react-dom":"node_modules/react-dom/index.js"}, function (require, exports, module) {
+Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_modules/react-list/react-list","node_modules/react-list"], {"prop-types":"node_modules/prop-types/index.js","react":"node_modules/react/react.js","react-dom":"node_modules/react-dom/index.js"}, function (require, exports, module) {
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define(['module', 'react', 'react-dom'], factory);
+    define(['module', 'prop-types', 'react', 'react-dom'], factory);
   } else if (typeof exports !== "undefined") {
-    factory(module, require('react'), require('react-dom'));
+    factory(module, require('prop-types'), require('react'), require('react-dom'));
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod, global.React, global.ReactDOM);
+    factory(mod, global.PropTypes, global.React, global.ReactDOM);
     global.ReactList = mod.exports;
   }
-})(this, function (_module2, _react, _reactDom) {
+})(this, function (_module2, _propTypes, _react, _reactDom) {
   'use strict';
 
   var _module3 = _interopRequireDefault(_module2);
+
+  var _propTypes2 = _interopRequireDefault(_propTypes);
 
   var _react2 = _interopRequireDefault(_react);
 
@@ -21410,19 +21697,19 @@ Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_mo
 
     return ReactList;
   }(_react.Component), _class.displayName = 'ReactList', _class.propTypes = {
-    axis: _react.PropTypes.oneOf(['x', 'y']),
-    initialIndex: _react.PropTypes.number,
-    itemRenderer: _react.PropTypes.func,
-    itemSizeEstimator: _react.PropTypes.func,
-    itemSizeGetter: _react.PropTypes.func,
-    itemsRenderer: _react.PropTypes.func,
-    length: _react.PropTypes.number,
-    pageSize: _react.PropTypes.number,
-    scrollParentGetter: _react.PropTypes.func,
-    threshold: _react.PropTypes.number,
-    type: _react.PropTypes.oneOf(['simple', 'variable', 'uniform']),
-    useStaticSize: _react.PropTypes.bool,
-    useTranslate3d: _react.PropTypes.bool
+    axis: _propTypes2.default.oneOf(['x', 'y']),
+    initialIndex: _propTypes2.default.number,
+    itemRenderer: _propTypes2.default.func,
+    itemSizeEstimator: _propTypes2.default.func,
+    itemSizeGetter: _propTypes2.default.func,
+    itemsRenderer: _propTypes2.default.func,
+    length: _propTypes2.default.number,
+    pageSize: _propTypes2.default.number,
+    scrollParentGetter: _propTypes2.default.func,
+    threshold: _propTypes2.default.number,
+    type: _propTypes2.default.oneOf(['simple', 'variable', 'uniform']),
+    useStaticSize: _propTypes2.default.bool,
+    useTranslate3d: _propTypes2.default.bool
   }, _class.defaultProps = {
     axis: 'y',
     itemRenderer: function itemRenderer(index, key) {
@@ -21449,7 +21736,7 @@ Cogs.define("node_modules/react-list/react-list.js", ["node_modules"], ["node_mo
 });
 
 });
-Cogs.define("src/options.js", ["node_modules"], ["src/options"], {"./option":"src/option.js","react-list":"node_modules/react-list/react-list.js","react":"node_modules/react/react.js"}, function (require, exports, module) {
+Cogs.define("src/options.js", ["node_modules"], ["src/options"], {"./option":"src/option.js","react-list":"node_modules/react-list/react-list.js","prop-types":"node_modules/prop-types/index.js","react":"node_modules/react/react.js"}, function (require, exports, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21465,6 +21752,10 @@ var _option2 = _interopRequireDefault(_option);
 var _reactList = require('react-list');
 
 var _reactList2 = _interopRequireDefault(_reactList);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _react = require('react');
 
@@ -21506,19 +21797,19 @@ var Component = function Component(props) {
 };
 
 Component.propTypes = {
-  activeIndex: _react.PropTypes.number.isRequired,
-  length: _react.PropTypes.number.isRequired,
-  listProps: _react.PropTypes.object,
-  onActivate: _react.PropTypes.func.isRequired,
-  onSelect: _react.PropTypes.func.isRequired,
-  optionRenderer: _react.PropTypes.func.isRequired,
-  renderer: _react.PropTypes.func.isRequired
+  activeIndex: _propTypes2.default.number.isRequired,
+  length: _propTypes2.default.number.isRequired,
+  listProps: _propTypes2.default.object,
+  onActivate: _propTypes2.default.func.isRequired,
+  onSelect: _propTypes2.default.func.isRequired,
+  optionRenderer: _propTypes2.default.func.isRequired,
+  renderer: _propTypes2.default.func.isRequired
 };
 
 exports.default = Component;
 
 });
-Cogs.define("src/selector.js", ["node_modules"], ["src/selector"], {"react-dom":"node_modules/react-dom/index.js","./options":"src/options.js","react":"node_modules/react/react.js"}, function (require, exports, module) {
+Cogs.define("src/selector.js", ["node_modules"], ["src/selector"], {"react-dom":"node_modules/react-dom/index.js","./options":"src/options.js","prop-types":"node_modules/prop-types/index.js","react":"node_modules/react/react.js"}, function (require, exports, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21534,6 +21825,10 @@ var _reactDom = require('react-dom');
 var _options = require('./options');
 
 var _options2 = _interopRequireDefault(_options);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _react = require('react');
 
@@ -21748,22 +22043,22 @@ var _class = function (_Component) {
 }(_react.Component);
 
 _class.propTypes = {
-  alwaysOpen: _react.PropTypes.bool.isRequired,
-  autoFocus: _react.PropTypes.bool.isRequired,
-  closeOnSelect: _react.PropTypes.bool.isRequired,
-  containerRenderer: _react.PropTypes.func.isRequired,
-  initialActiveIndex: _react.PropTypes.number.isRequired,
-  inputRenderer: _react.PropTypes.func.isRequired,
-  optionsRenderer: _react.PropTypes.func.isRequired,
-  optionRenderer: _react.PropTypes.func.isRequired,
-  length: _react.PropTypes.number.isRequired,
-  listProps: _react.PropTypes.object,
-  onClose: _react.PropTypes.func,
-  onOpen: _react.PropTypes.func,
-  onQuery: _react.PropTypes.func.isRequired,
-  onSelect: _react.PropTypes.func.isRequired,
-  placeholder: _react.PropTypes.string.isRequired,
-  query: _react.PropTypes.string
+  alwaysOpen: _propTypes2.default.bool.isRequired,
+  autoFocus: _propTypes2.default.bool.isRequired,
+  closeOnSelect: _propTypes2.default.bool.isRequired,
+  containerRenderer: _propTypes2.default.func.isRequired,
+  initialActiveIndex: _propTypes2.default.number.isRequired,
+  inputRenderer: _propTypes2.default.func.isRequired,
+  optionsRenderer: _propTypes2.default.func.isRequired,
+  optionRenderer: _propTypes2.default.func.isRequired,
+  length: _propTypes2.default.number.isRequired,
+  listProps: _propTypes2.default.object,
+  onClose: _propTypes2.default.func,
+  onOpen: _propTypes2.default.func,
+  onQuery: _propTypes2.default.func.isRequired,
+  onSelect: _propTypes2.default.func.isRequired,
+  placeholder: _propTypes2.default.string.isRequired,
+  query: _propTypes2.default.string
 };
 _class.defaultProps = {
   alwaysOpen: false,
@@ -21827,7 +22122,7 @@ exports.default = function (haystack, needle) {
 };
 
 });
-Cogs.define("src/single-selector.js", ["node_modules"], ["src/single-selector"], {"react-dom":"node_modules/react-dom/index.js","./index-of":"src/index-of.js","react":"node_modules/react/react.js","./selector":"src/selector.js"}, function (require, exports, module) {
+Cogs.define("src/single-selector.js", ["node_modules"], ["src/single-selector"], {"react-dom":"node_modules/react-dom/index.js","./index-of":"src/index-of.js","prop-types":"node_modules/prop-types/index.js","react":"node_modules/react/react.js","./selector":"src/selector.js"}, function (require, exports, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -21843,6 +22138,10 @@ var _reactDom = require('react-dom');
 var _indexOf = require('./index-of');
 
 var _indexOf2 = _interopRequireDefault(_indexOf);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _react = require('react');
 
@@ -22070,18 +22369,18 @@ var _class = function (_Component) {
 }(_react.Component);
 
 _class.propTypes = {
-  containerRenderer: _react.PropTypes.func.isRequired,
-  onBlur: _react.PropTypes.func,
-  onChange: _react.PropTypes.func.isRequired,
-  onFocus: _react.PropTypes.func,
-  onQuery: _react.PropTypes.func.isRequired,
-  optionRenderer: _react.PropTypes.func.isRequired,
-  options: _react.PropTypes.oneOfType([_react.PropTypes.array.isRequired, _react.PropTypes.shape({ length: _react.PropTypes.number.isRequired }).isRequired]).isRequired,
-  placeholder: _react.PropTypes.string,
-  query: _react.PropTypes.string,
-  value: _react.PropTypes.any,
-  inputRenderer: _react.PropTypes.func,
-  valueRenderer: _react.PropTypes.func.isRequired
+  containerRenderer: _propTypes2.default.func.isRequired,
+  onBlur: _propTypes2.default.func,
+  onChange: _propTypes2.default.func.isRequired,
+  onFocus: _propTypes2.default.func,
+  onQuery: _propTypes2.default.func.isRequired,
+  optionRenderer: _propTypes2.default.func.isRequired,
+  options: _propTypes2.default.oneOfType([_propTypes2.default.array.isRequired, _propTypes2.default.shape({ length: _propTypes2.default.number.isRequired }).isRequired]).isRequired,
+  placeholder: _propTypes2.default.string,
+  query: _propTypes2.default.string,
+  value: _propTypes2.default.any,
+  inputRenderer: _propTypes2.default.func,
+  valueRenderer: _propTypes2.default.func.isRequired
 };
 _class.defaultProps = {
   containerRenderer: function containerRenderer(_ref3) {

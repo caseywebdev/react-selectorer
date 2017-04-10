@@ -1,6 +1,7 @@
 import {findDOMNode} from 'react-dom';
 import indexOf from './index-of';
-import React, {Component, PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React, {Component} from 'react';
 import Selector from './selector';
 
 export default class extends Component {

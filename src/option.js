@@ -1,4 +1,4 @@
-import {PropTypes} from 'react';
+import PropTypes from 'prop-types';
 
 const LAST_MOUSE = {x: 0, y: 0};
 
