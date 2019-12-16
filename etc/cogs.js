@@ -1,41 +1,41 @@
-module.exports = [
-  {
+module.exports = {
+  package: {
     // Package
     transformers: [
       {
         name: 'babel',
-        only: '**/*.js',
-        options: {presets: ['es2015', 'stage-0', 'react']}
+        only: 'src/**/*.js',
+        options: { presets: ['@babel/preset-env', '@babel/preset-react'] }
       }
     ],
-    builds: {'src/**/!(example.js)': {dir: 'build'}}
+    builds: { 'src/*.js': { base: 'src', dir: 'build' } }
   },
 
   // Doc
-  {
+  docs: {
     transformers: [
       {
         name: 'replace',
         only: '**/*.js',
         options: {
           flags: 'g',
-          patterns: {'process.env.NODE_ENV': "'development'"}
+          patterns: { 'process.env.NODE_ENV': "'development'" }
         }
       },
       {
         name: 'babel',
         only: 'src/**/*.js',
-        options: {presets: ['es2015', 'stage-0', 'react']}
+        options: { presets: ['@babel/preset-env', '@babel/preset-react'] }
       },
       {
         name: 'concat-commonjs',
         only: '**/*.js',
-        options: {entry: 'src/example.js'}
+        options: { entry: 'src/docs/index.js' }
       }
     ],
     builds: {
-      'src/example.js': 'docs/index.js',
-      'src/index.css': 'docs/index.css'
+      'src/docs/index.js': { base: 'src/docs', dir: 'docs' },
+      'src/index.css': { base: 'src', dir: 'docs' }
     }
   }
-];
+};

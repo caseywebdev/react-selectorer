@@ -1,180 +1,175 @@
-import {findDOMNode} from 'react-dom';
-import indexOf from './index-of';
-import PropTypes from 'prop-types';
-import React, {Component} from 'react';
-import Selector from './selector';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 
-export default class extends Component {
-  static propTypes = {
-    containerRenderer: PropTypes.func.isRequired,
-    onBlur: PropTypes.func,
-    onChange: PropTypes.func.isRequired,
-    onFocus: PropTypes.func,
-    onQuery: PropTypes.func.isRequired,
-    optionRenderer: PropTypes.func.isRequired,
-    options: PropTypes.oneOfType([
-      PropTypes.array.isRequired,
-      PropTypes.shape({length: PropTypes.number.isRequired}).isRequired
-    ]).isRequired,
-    placeholder: PropTypes.string,
-    query: PropTypes.string,
-    value: PropTypes.any,
-    inputRenderer: PropTypes.func,
-    valueRenderer: PropTypes.func.isRequired
-  };
+import Selector from './selector.js';
 
-  static defaultProps = {
-    containerRenderer: ({props, input, options, value}) =>
-      <div {...props} className='rs-container'>{value}{input}{options}</div>,
-    optionRenderer: ({props, value, isActive, isSelected}) =>
-      <div
-        {...props}
-        className={['rs-option'].concat(
-          isActive ? 'rs-option-active' : [],
-          isSelected ? 'rs-option-selected' : []
-        ).join(' ')}
-      >
+const indexOf = (haystack, needle) => {
+  if (haystack.indexOf) return haystack.indexOf(needle);
+  for (const i in haystack) if (haystack[i] === needle) return parseInt(i);
+  return -1;
+};
+
+export default props => {
+  const {
+    apiRef,
+    containerRenderer,
+    onChange,
+    onQueryChange,
+    optionRenderer = ({ props, value, isActive, isSelected }) => (
+      <div {...props}>
         {value}
-      </div>,
-    query: '',
-    valueRenderer: ({props, value}) =>
-      <div {...props} className='rs-value'>{value}</div>
-  };
+        {isSelected && ' [isSelected]'}
+        {isActive && ' [isActive]'}
+      </div>
+    ),
+    options,
+    value,
+    valueRenderer = ({ props, value }) => <div {...props}>{value}</div>
+  } = props;
+  const selectorApiRef = useRef();
+  const valueRef = useRef();
+  const [shouldFocus, setShouldFocus] = useState(false);
 
-  state = {
-    isOpen: false
-  };
+  const renderOption = useCallback(
+    ({ props, index, isActive }) => {
+      const newValue = options[index];
+      const isSelected = newValue === value;
+      return optionRenderer({
+        index,
+        value: newValue,
+        isActive,
+        isSelected,
+        props
+      });
+    },
+    [optionRenderer, options, value]
+  );
 
-  componentDidUpdate() {
-    if (this.shouldFocus) {
-      const {selector, value} = this;
-      (selector || findDOMNode(value)).focus();
-      this.shouldFocus = false;
-    }
-  }
+  const change = useCallback(
+    index => {
+      onQueryChange('');
+      if (value !== options[index]) onChange(options[index]);
+    },
+    [onChange, onQueryChange, options, value]
+  );
 
-  focus() {
-    const {selector, value} = this;
-    (selector || findDOMNode(value)).focus();
-    this.shouldFocus = true;
-    this.open();
-  }
+  const incrValue = useCallback(
+    dir => {
+      const i = indexOf(options, value) + dir;
+      if (i >= 0 && i < options.length) change(i);
+    },
+    [change, options, value]
+  );
 
-  blur() {
-    const {selector, value} = this;
-    (selector || findDOMNode(value)).blur();
-    this.close();
-  }
-
-  open() {
-    this.setState({isOpen: true});
-    const {onOpen} = this.props;
-    if (onOpen) onOpen();
-  }
-
-  close() {
-    this.setState({isOpen: false});
-    const {onClose} = this.props;
-    if (onClose) onClose();
-  }
-
-  incrValue(dir) {
-    const {options, value} = this.props;
-    const i = indexOf(options, value) + dir;
-    if (i >= 0 && i < options.length) this.change(i);
-  }
-
-  change(index) {
-    const {onChange, onQuery, options} = this.props;
-    this.shouldFocus = true;
-    onQuery('');
-    onChange(options[index]);
-  }
-
-  handleClose() {
-    this.close();
-  }
-
-  handleOpen() {
-    this.open();
-    const {options, value} = this.props;
+  const handleOpen = useCallback(() => {
     const i = value == null ? undefined : indexOf(options, value);
-    if (i != null) this.selector.setActiveIndex(i);
-  }
+    if (i != null) selectorApiRef.current.activate(i);
+  }, [options, value]);
 
-  handleSelect(index) {
-    this.change(index);
-    this.close();
-  }
+  const handleClose = useCallback(() => {
+    setShouldFocus(true);
+  }, []);
 
-  handleKeyDown(ev) {
-    ev.stopPropagation();
-    let {key} = ev;
-    if (ev.ctrlKey) {
-      if (ev.which === 80) key = 'ArrowUp';
-      if (ev.which === 78) key = 'ArrowDown';
+  const handleSelect = useCallback(
+    i => {
+      change(i);
+      selectorApiRef.current.close();
+    },
+    [change]
+  );
+
+  const handleKeyDown = useCallback(
+    ev => {
+      ev.stopPropagation();
+      let { key } = ev;
+      if (ev.ctrlKey) {
+        if (ev.which === 80) key = 'ArrowUp';
+        if (ev.which === 78) key = 'ArrowDown';
+      }
+      switch (key) {
+        case 'Enter':
+        case ' ':
+          selectorApiRef.current.open();
+          return ev.preventDefault();
+        case 'Escape':
+          valueRef.current.blur();
+          return ev.preventDefault();
+        case 'ArrowUp':
+          incrValue(-1);
+          return ev.preventDefault();
+        case 'ArrowDown':
+          incrValue(1);
+          return ev.preventDefault();
+      }
+    },
+    [incrValue]
+  );
+
+  const containerRendererWithValue = useCallback(
+    options =>
+      (
+        containerRenderer ||
+        (({ props, input, isOpen, options, value: renderedValue }) => (
+          <>
+            {!isOpen && value != null && renderedValue}
+            <div {...props}>
+              {(isOpen || value == null) && input}
+              {isOpen && options}
+            </div>
+          </>
+        ))
+      )({
+        ...options,
+        value: valueRenderer({
+          props: {
+            ref: valueRef,
+            onClick: () => selectorApiRef.current.open(),
+            onKeyDown: handleKeyDown,
+            tabIndex: 0
+          },
+          value
+        })
+      }),
+    [containerRenderer, handleKeyDown, value, valueRenderer]
+  );
+
+  useEffect(() => {
+    if (shouldFocus) {
+      if (
+        valueRef.current &&
+        (!document.activeElement || document.activeElement === document.body)
+      ) {
+        valueRef.current.focus();
+      }
+      setShouldFocus(false);
     }
-    switch (key) {
-    case 'Enter':
-    case ' ':
-      this.focus();
-      return ev.preventDefault();
-    case 'Escape':
-      if (this.state.isOpen) this.close();
-      else this.blur();
-      return ev.preventDefault();
-    case 'ArrowUp':
-      this.incrValue(-1);
-      return ev.preventDefault();
-    case 'ArrowDown':
-      this.incrValue(1);
-      return ev.preventDefault();
-    }
-  }
+  }, [shouldFocus]);
 
-  renderOption({props, index, isActive}) {
-    const {optionRenderer, options, value: existingValue} = this.props;
-    const value = options[index];
-    const isSelected = value === existingValue;
-    return optionRenderer({index, value, isActive, isSelected, props});
-  }
+  useImperativeHandle(
+    apiRef,
+    () => ({
+      close: (...args) => selectorApiRef.current.close(...args),
+      open: (...args) => selectorApiRef.current.open(...args),
+      activate: (...args) => selectorApiRef.current.activate(...args)
+    }),
+    []
+  );
 
-  renderValue() {
-    const {containerRenderer, value, valueRenderer} = this.props;
-    return containerRenderer({
-      props: {
-        ref: c => this.container = c
-      },
-      value: valueRenderer({
-        props: {
-          ref: c => this.value = c,
-          onClick: ::this.focus,
-          onKeyDown: ::this.handleKeyDown,
-          tabIndex: 0
-        },
-        value
-      })
-    });
-  }
-
-  renderSelector() {
-    return (
-      <Selector
-        {...this.props}
-        length={this.props.options.length}
-        onClose={::this.handleClose}
-        onOpen={::this.handleOpen}
-        onSelect={::this.handleSelect}
-        optionRenderer={::this.renderOption}
-        ref={c => this.selector = c}
-      />
-    );
-  }
-
-  render() {
-    const {value} = this.props;
-    const {isOpen} = this.state;
-    const showValue = !isOpen && value != null;
-    return showValue ? this.renderValue() : this.renderSelector();
-  }
-}
+  return (
+    <Selector
+      {...props}
+      apiRef={selectorApiRef}
+      length={options.length}
+      onOpen={handleOpen}
+      onClose={handleClose}
+      onSelect={handleSelect}
+      optionRenderer={renderOption}
+      containerRenderer={containerRendererWithValue}
+    />
+  );
+};

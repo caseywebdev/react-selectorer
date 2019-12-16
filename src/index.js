@@ -1,11 +1,6 @@
-import Option from './option';
-import Options from './options';
-import Selector from './selector';
-import SingleSelector from './single-selector';
+import Selector from './selector.js';
+import SelectorOption from './selector-option.js';
+import SelectorOptions from './selector-options.js';
+import SingleSelector from './single-selector.js';
 
-export {
-  Option,
-  Options,
-  Selector,
-  SingleSelector
-};
+export default { SelectorOption, SelectorOptions, Selector, SingleSelector };

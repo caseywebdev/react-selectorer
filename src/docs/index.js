@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Selector, SingleSelector} from '.';
+
+import rs from '../index.js';
 
 const NAMES = [
   'Shanelle',
@@ -56,30 +57,28 @@ const NAMES = [
 ];
 
 class SelectorExample extends React.Component {
-  state = {
-    options: NAMES,
-    query: ''
-  };
-
-  handleSelect(index) {
-    this.handleQuery(this.state.options[index]);
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      options: NAMES,
+      query: ''
+    };
   }
 
-  handleQuery(query) {
+  handleSelect(index) {
+    this.handleQueryChange(this.state.options[index]);
+  }
+
+  handleQueryChange(query) {
     if (!query) query = '';
     const needle = query.toLowerCase().trim();
     const filter = option => option.toLowerCase().indexOf(needle) > -1;
-    this.setState({query, options: NAMES.filter(filter)});
+    this.setState({ query, options: NAMES.filter(filter) });
   }
 
-  renderOption({props, index, isActive}) {
+  renderOption({ props, index, isActive }) {
     return (
-      <div
-        {...props}
-        className={['rs-option'].concat(
-          isActive ? 'rs-option-active' : []
-        ).join(' ')}
-      >
+      <div {...props}>
         {this.state.options[index]}
       </div>
     );
@@ -87,11 +86,11 @@ class SelectorExample extends React.Component {
 
   render() {
     return (
-      <Selector
+      <rs.Selector
         length={this.state.options.length}
-        onQuery={::this.handleQuery}
-        onSelect={::this.handleSelect}
-        optionRenderer={::this.renderOption}
+        onQueryChange={this.handleQueryChange.bind(this)}
+        onSelect={this.handleSelect.bind(this)}
+        optionRenderer={this.renderOption.bind(this)}
         placeholder='Search by first name...'
         query={this.state.query}
       />
@@ -100,26 +99,27 @@ class SelectorExample extends React.Component {
 }
 
 class SingleSelectorExample extends React.Component {
-  state = {
-    options: NAMES
-  };
-
-  handleChange(value) {
-    this.setState({value});
+  constructor(...args) {
+    super(...args);
+    this.state = { options: NAMES };
   }
 
-  handleQuery(query) {
+  handleChange(value) {
+    this.setState({ value });
+  }
+
+  handleQueryChange(query) {
     if (!query) query = '';
     const needle = query.toLowerCase().trim();
     const filter = option => option.toLowerCase().indexOf(needle) > -1;
-    this.setState({query, options: NAMES.filter(filter)});
+    this.setState({ query, options: NAMES.filter(filter) });
   }
 
   render() {
     return (
-      <SingleSelector
-        onQuery={::this.handleQuery}
-        onChange={::this.handleChange}
+      <rs.SingleSelector
+        onQueryChange={this.handleQueryChange.bind(this)}
+        onChange={this.handleChange.bind(this)}
         options={this.state.options}
         placeholder='Search by first name...'
         query={this.state.query}

@@ -1,192 +1,199 @@
-import {findDOMNode} from 'react-dom';
-import Options from './options';
-import PropTypes from 'prop-types';
-import React, {Component} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
-export default class extends Component {
-  static propTypes = {
-    alwaysOpen: PropTypes.bool.isRequired,
-    autoFocus: PropTypes.bool.isRequired,
-    closeOnSelect: PropTypes.bool.isRequired,
-    containerRenderer: PropTypes.func.isRequired,
-    initialActiveIndex: PropTypes.number.isRequired,
-    inputRenderer: PropTypes.func.isRequired,
-    optionsRenderer: PropTypes.func.isRequired,
-    optionRenderer: PropTypes.func.isRequired,
-    length: PropTypes.number.isRequired,
-    listProps: PropTypes.object,
-    onClose: PropTypes.func,
-    onOpen: PropTypes.func,
-    onQuery: PropTypes.func.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    placeholder: PropTypes.string.isRequired,
-    query: PropTypes.string
-  };
+import SelectorOptions from './selector-options.js';
+import useOuterEvents from './use-outer-events.js';
 
-  static defaultProps = {
-    alwaysOpen: false,
-    autoFocus: false,
-    closeOnSelect: true,
-    containerRenderer: ({props, input, options}) =>
-      <div {...props} className='rs-container'>{input}{options}</div>,
-    initialActiveIndex: 0,
-    inputRenderer: ({props}) =>
-      <input {...props} className='rs-input' />,
-    length: 0,
-    optionsRenderer: ({props, options}) =>
-      <div {...props} className='rs-options'>{options}</div>,
-    optionRenderer: ({props, index, isActive}) =>
-      <div
-        {...props}
-        className={['rs-option'].concat(
-          isActive ? 'rs-option-active' : []
-        ).join(' ')}
-      >
-        {index}
-      </div>,
-    placeholder: 'Search...'
-  };
+export default ({
+  apiRef,
+  closeOnSelect = true,
+  containerRenderer = ({ props, input, options }) => (
+    <div {...props}>
+      {input}
+      {options}
+    </div>
+  ),
+  initialActiveIndex = 0,
+  inputRenderer = ({ props }) => <input {...props} />,
+  length = 0,
+  listProps = {},
+  optionsRenderer = ({ props, options }) => <div {...props}>{options}</div>,
+  optionRenderer = ({ props, index, isActive }) => (
+    <div {...props}>
+      {index}
+      {isActive && ' [isActive]'}
+    </div>
+  ),
+  onClose = () => {},
+  onOpen = () => {},
+  onQueryChange = () => {},
+  onSelect = () => {},
+  placeholder = 'Search...',
+  query = ''
+}) => {
+  const containerRef = useRef();
+  const inputRef = useRef();
+  const listRef = useRef();
+  const prevQuery = useRef();
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(initialActiveIndex);
 
-  state = {
-    activeIndex: this.props.initialActiveIndex,
-    isOpen: false
-  };
+  const activate = useCallback(
+    i => setActiveIndex(Math.max(0, Math.min(i, length - 1))),
+    [length]
+  );
 
-  componentDidMount() {
-    document.addEventListener('focus', this.handleFocus, true);
-    document.addEventListener('click', this.handleFocus);
-    if (this.props.autoFocus) this.focus();
-  }
+  const open = useCallback(() => {
+    if (isOpen) return;
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.query !== this.props.query) this.setActiveIndex(0);
-  }
+    setIsOpen(true);
+    onOpen();
+  }, [isOpen, onOpen]);
 
-  componentWillUnmount() {
-    document.removeEventListener('focus', this.handleFocus, true);
-    document.removeEventListener('click', this.handleFocus);
-  }
+  const close = useCallback(() => {
+    if (!isOpen) return;
 
-  incrActiveIndex(dir) {
-    this.setActiveIndex(this.state.activeIndex + dir);
-  }
+    setIsOpen(false);
+    onClose();
+  }, [isOpen, onClose]);
 
-  setActiveIndex(i) {
-    i = Math.max(0, Math.min(i, this.props.length - 1));
-    this.setState({activeIndex: i}, ::this.scrollAroundActiveIndex);
-  }
+  const handleSelect = useCallback(
+    index => {
+      onSelect(index);
+      if (closeOnSelect) close();
+      else open();
+    },
+    [close, closeOnSelect, onSelect, open]
+  );
 
-  scrollAroundActiveIndex() {
-    if (this.list) this.list.scrollAround(this.state.activeIndex);
-  }
+  const listPropsWithRef = useMemo(
+    () => ({
+      ...listProps,
+      ref: listRef
+    }),
+    [listProps]
+  );
 
-  focus() {
-    findDOMNode(this.input).focus();
-    this.open();
-  }
+  const handleQueryChange = useCallback(
+    ev => {
+      ev.stopPropagation();
+      onQueryChange(ev.target.value);
+    },
+    [onQueryChange]
+  );
 
-  blur() {
-    findDOMNode(this.input).blur();
-    this.close();
-  }
-
-  open() {
-    this.setState({isOpen: true});
-    const {onOpen} = this.props;
-    if (onOpen) onOpen();
-  }
-
-  close() {
-    this.setState({isOpen: false});
-    const {onClose} = this.props;
-    if (onClose) onClose();
-  }
-
-  setQuery(query) {
-    this.props.onQuery(query);
-  }
-
-  handleSelect(index) {
-    this.props.onSelect(index);
-    if (this.props.closeOnSelect) this.close();
-    else this.open();
-  }
-
-  handleQueryChange(ev) {
-    ev.stopPropagation();
-    this.setQuery(ev.target.value);
-  }
-
-  handleKeyDown(ev) {
-    this.open();
-    ev.stopPropagation();
-    var key = ev.key;
-    if (ev.ctrlKey) {
-      if (ev.which === 80) key = 'ArrowUp';
-      if (ev.which === 78) key = 'ArrowDown';
-    }
-    switch (key) {
-    case 'Enter':
-      if (this.state.activeIndex < this.props.length) {
-        this.handleSelect(this.state.activeIndex);
+  const handleKeyDown = useCallback(
+    ev => {
+      open();
+      ev.stopPropagation();
+      var key = ev.key;
+      if (ev.ctrlKey) {
+        if (ev.which === 80) key = 'ArrowUp';
+        if (ev.which === 78) key = 'ArrowDown';
       }
-      return ev.preventDefault();
-    case 'Escape':
-      if (this.props.query) this.setQuery(''); else this.blur();
-      return ev.preventDefault();
-    case 'ArrowUp':
-      this.incrActiveIndex(-1);
-      return ev.preventDefault();
-    case 'ArrowDown':
-      this.incrActiveIndex(1);
-      return ev.preventDefault();
-    }
-  }
+      switch (key) {
+        case 'Enter':
+          if (activeIndex < length) handleSelect(activeIndex);
+          return ev.preventDefault();
+        case 'Escape':
+          if (query) onQueryChange('');
+          else close();
+          return ev.preventDefault();
+        case 'ArrowUp':
+          activate(activeIndex - 1);
+          return ev.preventDefault();
+        case 'ArrowDown':
+          activate(activeIndex + 1);
+          return ev.preventDefault();
+      }
+    },
+    [
+      open,
+      activeIndex,
+      length,
+      handleSelect,
+      query,
+      onQueryChange,
+      close,
+      activate
+    ]
+  );
 
-  handleFocus = ({target}) => {
-    const {container} = this;
+  useEffect(() => {
+    if (!isOpen) return;
 
-    if (container && document.documentElement.contains(target)) {
-      if (findDOMNode(container).contains(target)) this.open();
-      else this.close();
-    }
-  };
+    const inputEl = inputRef.current;
+    inputEl.focus();
+    return () => inputEl.blur();
+  }, [isOpen]);
 
-  renderOptions() {
-    const {alwaysOpen, listProps, length, optionRenderer, optionsRenderer} =
-      this.props;
-    const {activeIndex, isOpen} = this.state;
-    if (!alwaysOpen && !isOpen) return;
-    return (
-      <Options
+  useEffect(() => {
+    if (listRef.current) listRef.current.scrollAround(activeIndex);
+  }, [activeIndex]);
+
+  useEffect(() => {
+    if (query !== prevQuery.current) activate(0);
+    prevQuery.current = query;
+  }, [activate, query]);
+
+  const { captureInnerEvent } = useOuterEvents({
+    events: useMemo(() => [['click'], ['focus', true]], []),
+    onOuterEvent: useCallback(
+      ev => {
+        if (isOpen && !ev.defaultPrevented) close();
+      },
+      [close, isOpen]
+    )
+  });
+
+  const handleContainerEvent = useCallback(
+    ev => {
+      if (!isOpen && !ev.defaultPrevented) open();
+      captureInnerEvent(ev);
+    },
+    [captureInnerEvent, isOpen, open]
+  );
+
+  useImperativeHandle(apiRef, () => ({ activate, open, close }), [
+    activate,
+    close,
+    open
+  ]);
+
+  return containerRenderer({
+    props: {
+      ref: containerRef,
+      onClick: handleContainerEvent,
+      onFocus: handleContainerEvent
+    },
+    input: inputRenderer({
+      props: {
+        ref: inputRef,
+        value: query,
+        onChange: handleQueryChange,
+        onKeyDown: handleKeyDown,
+        placeholder,
+        tabIndex: 0
+      }
+    }),
+    inputRef,
+    isOpen,
+    options: (
+      <SelectorOptions
         activeIndex={activeIndex}
         optionRenderer={optionRenderer}
         renderer={optionsRenderer}
-        onActivate={::this.setActiveIndex}
-        onSelect={::this.handleSelect}
+        onActivate={activate}
+        onSelect={handleSelect}
         length={length}
-        listProps={{...listProps, ref: c => this.list = c}}
+        listProps={listPropsWithRef}
       />
-    );
-  }
-
-  render() {
-    const {containerRenderer, inputRenderer, placeholder, query} = this.props;
-    return containerRenderer({
-      props: {
-        ref: c => this.container = c
-      },
-      input: inputRenderer({
-        props: {
-          ref: c => this.input = c,
-          value: query,
-          onChange: ::this.handleQueryChange,
-          onKeyDown: ::this.handleKeyDown,
-          placeholder,
-          tabIndex: 0
-        }
-      }),
-      options: this.renderOptions()
-    });
-  }
-}
+    )
+  });
+};
