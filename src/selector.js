@@ -143,7 +143,7 @@ export default ({
   }, [activate, query]);
 
   const { captureInnerEvent } = useOuterEvents({
-    events: useMemo(() => [['click'], ['focus', true]], []),
+    events: useMemo(() => [['focus', true], ['mousedown'], ['touchstart']], []),
     onOuterEvent: useCallback(
       ev => {
         if (isOpen && !ev.defaultPrevented) close();
@@ -155,7 +155,7 @@ export default ({
   const handleContainerEvent = useCallback(
     ev => {
       if (!isOpen && !ev.defaultPrevented) open();
-      captureInnerEvent(ev);
+      if (ev.type === 'focus') captureInnerEvent(ev);
     },
     [captureInnerEvent, isOpen, open]
   );
@@ -170,7 +170,9 @@ export default ({
     props: {
       ref: containerRef,
       onClick: handleContainerEvent,
-      onFocus: handleContainerEvent
+      onFocus: handleContainerEvent,
+      onMouseDown: captureInnerEvent,
+      onTouchStart: captureInnerEvent
     },
     input: inputRenderer({
       props: {

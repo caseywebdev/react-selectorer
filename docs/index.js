@@ -34145,7 +34145,7 @@ var _default = function _default(_ref) {
 
   var _useOuterEvents = (0, _useOuterEvents2["default"])({
     events: (0, _react.useMemo)(function () {
-      return [['click'], ['focus', true]];
+      return [['focus', true], ['mousedown'], ['touchstart']];
     }, []),
     onOuterEvent: (0, _react.useCallback)(function (ev) {
       if (isOpen && !ev.defaultPrevented) close();
@@ -34155,7 +34155,7 @@ var _default = function _default(_ref) {
 
   var handleContainerEvent = (0, _react.useCallback)(function (ev) {
     if (!isOpen && !ev.defaultPrevented) open();
-    captureInnerEvent(ev);
+    if (ev.type === 'focus') captureInnerEvent(ev);
   }, [captureInnerEvent, isOpen, open]);
   (0, _react.useImperativeHandle)(apiRef, function () {
     return {
@@ -34168,7 +34168,9 @@ var _default = function _default(_ref) {
     props: {
       ref: containerRef,
       onClick: handleContainerEvent,
-      onFocus: handleContainerEvent
+      onFocus: handleContainerEvent,
+      onMouseDown: captureInnerEvent,
+      onTouchStart: captureInnerEvent
     },
     input: inputRenderer({
       props: {
