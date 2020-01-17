@@ -34019,8 +34019,9 @@ var _default = function _default(_ref) {
       containerRenderer = _ref$containerRendere === void 0 ? function (_ref2) {
     var props = _ref2.props,
         input = _ref2.input,
+        isOpen = _ref2.isOpen,
         options = _ref2.options;
-    return _react["default"].createElement("div", props, input, options);
+    return _react["default"].createElement("div", props, input, isOpen && options);
   } : _ref$containerRendere,
       _ref$initialActiveInd = _ref.initialActiveIndex,
       initialActiveIndex = _ref$initialActiveInd === void 0 ? 0 : _ref$initialActiveInd,
@@ -34504,7 +34505,7 @@ function (_React$Component) {
       var props = _ref.props,
           index = _ref.index,
           isActive = _ref.isActive;
-      return _react["default"].createElement("div", props, this.state.options[index]);
+      return _react["default"].createElement("div", props, this.state.options[index], isActive && ' [isActive]');
     }
   }, {
     key: "render",

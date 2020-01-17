@@ -13,10 +13,10 @@ import useOuterEvents from './use-outer-events.js';
 export default ({
   apiRef,
   closeOnSelect = true,
-  containerRenderer = ({ props, input, options }) => (
+  containerRenderer = ({ props, input, isOpen, options }) => (
     <div {...props}>
       {input}
-      {options}
+      {isOpen && options}
     </div>
   ),
   initialActiveIndex = 0,

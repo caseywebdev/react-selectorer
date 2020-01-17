@@ -79,7 +79,7 @@ class SelectorExample extends React.Component {
   renderOption({ props, index, isActive }) {
     return (
       <div {...props}>
-        {this.state.options[index]}
+        {this.state.options[index]}{isActive && ' [isActive]'}
       </div>
     );
   }
