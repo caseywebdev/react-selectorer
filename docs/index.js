@@ -30301,7 +30301,7 @@ if ('development' === 'production') {
 }
 });
 Cogs.define("node_modules/react-is/cjs/react-is.production.min.js", function (COGS_REQUIRE, COGS_REQUIRE_ASYNC, module, exports) {
-/** @license React v16.12.0
+/** @license React v16.13.1
  * react-is.production.min.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -30310,15 +30310,15 @@ Cogs.define("node_modules/react-is/cjs/react-is.production.min.js", function (CO
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';Object.defineProperty(exports,"__esModule",{value:!0});
-var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?Symbol.for("react.suspense_list"):
-60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.fundamental"):60117,w=b?Symbol.for("react.responder"):60118,x=b?Symbol.for("react.scope"):60119;function y(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function z(a){return y(a)===m}
-exports.typeOf=y;exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;
-exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===v||a.$$typeof===w||a.$$typeof===x)};exports.isAsyncMode=function(a){return z(a)||y(a)===l};exports.isConcurrentMode=z;exports.isContextConsumer=function(a){return y(a)===k};exports.isContextProvider=function(a){return y(a)===h};
-exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return y(a)===n};exports.isFragment=function(a){return y(a)===e};exports.isLazy=function(a){return y(a)===t};exports.isMemo=function(a){return y(a)===r};exports.isPortal=function(a){return y(a)===d};exports.isProfiler=function(a){return y(a)===g};exports.isStrictMode=function(a){return y(a)===f};exports.isSuspense=function(a){return y(a)===p};
+'use strict';var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?
+Symbol.for("react.suspense_list"):60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.block"):60121,w=b?Symbol.for("react.fundamental"):60117,x=b?Symbol.for("react.responder"):60118,y=b?Symbol.for("react.scope"):60119;
+function z(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function A(a){return z(a)===m}exports.AsyncMode=l;exports.ConcurrentMode=m;exports.ContextConsumer=k;exports.ContextProvider=h;exports.Element=c;exports.ForwardRef=n;exports.Fragment=e;exports.Lazy=t;exports.Memo=r;exports.Portal=d;
+exports.Profiler=g;exports.StrictMode=f;exports.Suspense=p;exports.isAsyncMode=function(a){return A(a)||z(a)===l};exports.isConcurrentMode=A;exports.isContextConsumer=function(a){return z(a)===k};exports.isContextProvider=function(a){return z(a)===h};exports.isElement=function(a){return"object"===typeof a&&null!==a&&a.$$typeof===c};exports.isForwardRef=function(a){return z(a)===n};exports.isFragment=function(a){return z(a)===e};exports.isLazy=function(a){return z(a)===t};
+exports.isMemo=function(a){return z(a)===r};exports.isPortal=function(a){return z(a)===d};exports.isProfiler=function(a){return z(a)===g};exports.isStrictMode=function(a){return z(a)===f};exports.isSuspense=function(a){return z(a)===p};
+exports.isValidElementType=function(a){return"string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===w||a.$$typeof===x||a.$$typeof===y||a.$$typeof===v)};exports.typeOf=z;
 });
 Cogs.define("node_modules/react-is/cjs/react-is.development.js", function (COGS_REQUIRE, COGS_REQUIRE_ASYNC, module, exports) {
-/** @license React v16.12.0
+/** @license React v16.13.1
  * react-is.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -30334,8 +30334,6 @@ Cogs.define("node_modules/react-is/cjs/react-is.development.js", function (COGS_
 if ('development' !== "production") {
   (function() {
 'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
 
 // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
 // nor polyfill, then a plain number is used for performance.
@@ -30356,69 +30354,15 @@ var REACT_SUSPENSE_TYPE = hasSymbol ? Symbol.for('react.suspense') : 0xead1;
 var REACT_SUSPENSE_LIST_TYPE = hasSymbol ? Symbol.for('react.suspense_list') : 0xead8;
 var REACT_MEMO_TYPE = hasSymbol ? Symbol.for('react.memo') : 0xead3;
 var REACT_LAZY_TYPE = hasSymbol ? Symbol.for('react.lazy') : 0xead4;
+var REACT_BLOCK_TYPE = hasSymbol ? Symbol.for('react.block') : 0xead9;
 var REACT_FUNDAMENTAL_TYPE = hasSymbol ? Symbol.for('react.fundamental') : 0xead5;
 var REACT_RESPONDER_TYPE = hasSymbol ? Symbol.for('react.responder') : 0xead6;
 var REACT_SCOPE_TYPE = hasSymbol ? Symbol.for('react.scope') : 0xead7;
 
 function isValidElementType(type) {
   return typeof type === 'string' || typeof type === 'function' || // Note: its typeof might be other than 'symbol' or 'number' if it's a polyfill.
-  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE);
+  type === REACT_FRAGMENT_TYPE || type === REACT_CONCURRENT_MODE_TYPE || type === REACT_PROFILER_TYPE || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || typeof type === 'object' && type !== null && (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || type.$$typeof === REACT_FUNDAMENTAL_TYPE || type.$$typeof === REACT_RESPONDER_TYPE || type.$$typeof === REACT_SCOPE_TYPE || type.$$typeof === REACT_BLOCK_TYPE);
 }
-
-/**
- * Forked from fbjs/warning:
- * https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/__forks__/warning.js
- *
- * Only change is we use console.warn instead of console.error,
- * and do nothing when 'console' is not supported.
- * This really simplifies the code.
- * ---
- * Similar to invariant but only logs a warning if the condition is not met.
- * This can be used to log issues in development environments in critical
- * paths. Removing the logging code for production environments will keep the
- * same logic and follow the same code paths.
- */
-var lowPriorityWarningWithoutStack = function () {};
-
-{
-  var printWarning = function (format) {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    var argIndex = 0;
-    var message = 'Warning: ' + format.replace(/%s/g, function () {
-      return args[argIndex++];
-    });
-
-    if (typeof console !== 'undefined') {
-      console.warn(message);
-    }
-
-    try {
-      // --- Welcome to debugging React ---
-      // This error was thrown as a convenience so that you can use this stack
-      // to find the callsite that caused this warning to fire.
-      throw new Error(message);
-    } catch (x) {}
-  };
-
-  lowPriorityWarningWithoutStack = function (condition, format) {
-    if (format === undefined) {
-      throw new Error('`lowPriorityWarningWithoutStack(condition, format, ...args)` requires a warning ' + 'message argument');
-    }
-
-    if (!condition) {
-      for (var _len2 = arguments.length, args = new Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-        args[_key2 - 2] = arguments[_key2];
-      }
-
-      printWarning.apply(void 0, [format].concat(args));
-    }
-  };
-}
-
-var lowPriorityWarningWithoutStack$1 = lowPriorityWarningWithoutStack;
 
 function typeOf(object) {
   if (typeof object === 'object' && object !== null) {
@@ -30480,8 +30424,9 @@ var hasWarnedAboutDeprecatedIsAsyncMode = false; // AsyncMode should be deprecat
 function isAsyncMode(object) {
   {
     if (!hasWarnedAboutDeprecatedIsAsyncMode) {
-      hasWarnedAboutDeprecatedIsAsyncMode = true;
-      lowPriorityWarningWithoutStack$1(false, 'The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
+      hasWarnedAboutDeprecatedIsAsyncMode = true; // Using console['warn'] to evade Babel and ESLint
+
+      console['warn']('The ReactIs.isAsyncMode() alias has been deprecated, ' + 'and will be removed in React 17+. Update your code to use ' + 'ReactIs.isConcurrentMode() instead. It has the exact same API.');
     }
   }
 
@@ -30524,7 +30469,6 @@ function isSuspense(object) {
   return typeOf(object) === REACT_SUSPENSE_TYPE;
 }
 
-exports.typeOf = typeOf;
 exports.AsyncMode = AsyncMode;
 exports.ConcurrentMode = ConcurrentMode;
 exports.ContextConsumer = ContextConsumer;
@@ -30538,7 +30482,6 @@ exports.Portal = Portal;
 exports.Profiler = Profiler;
 exports.StrictMode = StrictMode;
 exports.Suspense = Suspense;
-exports.isValidElementType = isValidElementType;
 exports.isAsyncMode = isAsyncMode;
 exports.isConcurrentMode = isConcurrentMode;
 exports.isContextConsumer = isContextConsumer;
@@ -30552,6 +30495,8 @@ exports.isPortal = isPortal;
 exports.isProfiler = isProfiler;
 exports.isStrictMode = isStrictMode;
 exports.isSuspense = isSuspense;
+exports.isValidElementType = isValidElementType;
+exports.typeOf = typeOf;
   })();
 }
 });
@@ -32150,7 +32095,7 @@ exports["default"] = _default;
 Cogs.define("src/selector-options.js", function (COGS_REQUIRE, COGS_REQUIRE_ASYNC, module, exports) {
 "use strict";
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -32180,23 +32125,18 @@ var _default = function _default(_ref) {
       optionRenderer = _ref.optionRenderer,
       renderer = _ref.renderer;
   var renderOption = (0, _react.useCallback)(function (index, key) {
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement(_selectorOption["default"], {
-        index: index,
-        isActive: index === activeIndex,
-        key: key,
-        onActivate: onActivate,
-        onSelect: onSelect,
-        renderer: optionRenderer
-      })
-    );
+    return /*#__PURE__*/_react["default"].createElement(_selectorOption["default"], {
+      index: index,
+      isActive: index === activeIndex,
+      key: key,
+      onActivate: onActivate,
+      onSelect: onSelect,
+      renderer: optionRenderer
+    });
   }, [activeIndex, onActivate, onSelect, optionRenderer]);
   return renderer({
     props: {},
-    options:
-    /*#__PURE__*/
-    _react["default"].createElement(_reactList["default"], _extends({
+    options: /*#__PURE__*/_react["default"].createElement(_reactList["default"], _extends({
       initialIndex: activeIndex,
       itemRenderer: renderOption,
       length: length
@@ -32216,14 +32156,6 @@ exports["default"] = void 0;
 
 var _react = COGS_REQUIRE("node_modules/react/index.js");
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 var _default = function _default(_ref) {
   var events = _ref.events,
       onOuterEvent = _ref.onOuterEvent;
@@ -32239,17 +32171,11 @@ var _default = function _default(_ref) {
       });
     };
 
-    events.forEach(function (_ref2) {
-      var _ref3 = _slicedToArray(_ref2, 1),
-          event = _ref3[0];
-
+    events.forEach(function (event) {
       return document.addEventListener(event, handle);
     });
     return function () {
-      events.forEach(function (_ref4) {
-        var _ref5 = _slicedToArray(_ref4, 1),
-            event = _ref5[0];
-
+      events.forEach(function (event) {
         return document.removeEventListener(event, handle);
       });
     };
@@ -32264,7 +32190,7 @@ exports["default"] = _default;
 Cogs.define("src/selector.js", function (COGS_REQUIRE, COGS_REQUIRE_ASYNC, module, exports) {
 "use strict";
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -32289,11 +32215,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -32307,20 +32237,14 @@ var _default = function _default(_ref) {
         input = _ref2.input,
         isOpen = _ref2.isOpen,
         options = _ref2.options;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", props, input, isOpen && options)
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", props, input, isOpen && options);
   } : _ref$containerRendere,
       _ref$initialActiveInd = _ref.initialActiveIndex,
       initialActiveIndex = _ref$initialActiveInd === void 0 ? 0 : _ref$initialActiveInd,
       _ref$inputRenderer = _ref.inputRenderer,
       inputRenderer = _ref$inputRenderer === void 0 ? function (_ref3) {
     var props = _ref3.props;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("input", props)
-    );
+    return /*#__PURE__*/_react["default"].createElement("input", props);
   } : _ref$inputRenderer,
       _ref$length = _ref.length,
       length = _ref$length === void 0 ? 0 : _ref$length,
@@ -32330,20 +32254,14 @@ var _default = function _default(_ref) {
       optionsRenderer = _ref$optionsRenderer === void 0 ? function (_ref4) {
     var props = _ref4.props,
         options = _ref4.options;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", props, options)
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", props, options);
   } : _ref$optionsRenderer,
       _ref$optionRenderer = _ref.optionRenderer,
       optionRenderer = _ref$optionRenderer === void 0 ? function (_ref5) {
     var props = _ref5.props,
         index = _ref5.index,
         isActive = _ref5.isActive;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", props, index, isActive && ' [isActive]')
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", props, index, isActive && ' [isActive]');
   } : _ref$optionRenderer,
       _ref$onClose = _ref.onClose,
       onClose = _ref$onClose === void 0 ? function () {} : _ref$onClose,
@@ -32483,9 +32401,7 @@ var _default = function _default(_ref) {
     }),
     inputRef: inputRef,
     isOpen: isOpen,
-    options:
-    /*#__PURE__*/
-    _react["default"].createElement(_selectorOptions["default"], {
+    options: /*#__PURE__*/_react["default"].createElement(_selectorOptions["default"], {
       activeIndex: activeIndex,
       optionRenderer: optionRenderer,
       renderer: optionsRenderer,
@@ -32502,7 +32418,7 @@ exports["default"] = _default;
 Cogs.define("src/single-selector.js", function (COGS_REQUIRE, COGS_REQUIRE_ASYNC, module, exports) {
 "use strict";
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -32527,11 +32443,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
@@ -32556,10 +32476,7 @@ var _default = function _default(props) {
         value = _ref.value,
         isActive = _ref.isActive,
         isSelected = _ref.isSelected;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", props, value, isSelected && ' [isSelected]', isActive && ' [isActive]')
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", props, value, isSelected && ' [isSelected]', isActive && ' [isActive]');
   } : _props$optionRenderer,
       options = props.options,
       value = props.value,
@@ -32567,10 +32484,7 @@ var _default = function _default(props) {
       valueRenderer = _props$valueRenderer === void 0 ? function (_ref2) {
     var props = _ref2.props,
         value = _ref2.value;
-    return (
-      /*#__PURE__*/
-      _react["default"].createElement("div", props, value)
-    );
+    return /*#__PURE__*/_react["default"].createElement("div", props, value);
   } : _props$valueRenderer;
   var selectorApiRef = (0, _react.useRef)();
   var valueRef = (0, _react.useRef)();
@@ -32648,12 +32562,7 @@ var _default = function _default(props) {
           isOpen = _ref4.isOpen,
           options = _ref4.options,
           renderedValue = _ref4.value;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_react["default"].Fragment, null, !isOpen && value != null && renderedValue,
-        /*#__PURE__*/
-        _react["default"].createElement("div", props, (isOpen || value == null) && input, isOpen && options))
-      );
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, !isOpen && value != null && renderedValue, /*#__PURE__*/_react["default"].createElement("div", props, (isOpen || value == null) && input, isOpen && options));
     })(_objectSpread(_objectSpread({}, options), {}, {
       value: valueRenderer({
         props: {
@@ -32696,18 +32605,15 @@ var _default = function _default(props) {
       }
     };
   }, []);
-  return (
-    /*#__PURE__*/
-    _react["default"].createElement(_selector["default"], _extends({}, props, {
-      apiRef: selectorApiRef,
-      length: options.length,
-      onOpen: handleOpen,
-      onClose: handleClose,
-      onSelect: handleSelect,
-      optionRenderer: renderOption,
-      containerRenderer: containerRendererWithValue
-    }))
-  );
+  return /*#__PURE__*/_react["default"].createElement(_selector["default"], _extends({}, props, {
+    apiRef: selectorApiRef,
+    length: options.length,
+    onOpen: handleOpen,
+    onClose: handleClose,
+    onSelect: handleSelect,
+    optionRenderer: renderOption,
+    containerRenderer: containerRendererWithValue
+  }));
 };
 
 exports["default"] = _default;
@@ -32749,7 +32655,7 @@ var _index = _interopRequireDefault(COGS_REQUIRE("src/index.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -32761,47 +32667,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _createSuper(Derived) {
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  return function () {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (isNativeReflectConstruct()) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 var NAMES = ['Shanelle', 'Stacy', 'Euna', 'Lucy', 'Latia', 'Merry', 'Celestina', 'Sherie', 'Jonathon', 'Mao', 'Viva', 'Tomasa', 'Lesha', 'Mohammed', 'Mavis', 'Ara', 'Lidia', 'Novella', 'Tinisha', 'Virgen', 'Myles', 'Lucrecia', 'Claudie', 'Tamra', 'America', 'Dionna', 'Elicia', 'Louann', 'Rufina', 'Charissa', 'Tish', 'Willis', 'Mohammad', 'Adelia', 'Terresa', 'Jody', 'Wm', 'Myrle', 'Honey', 'Hyon', 'Harmony', 'Lamont', 'Ivette', 'Kasi', 'Danyell', 'Santo', 'Mui', 'Owen', 'Emmanuel', 'Colby'];
 
-var SelectorExample =
-/*#__PURE__*/
-function (_React$Component) {
+var SelectorExample = /*#__PURE__*/function (_React$Component) {
   _inherits(SelectorExample, _React$Component);
 
   var _super = _createSuper(SelectorExample);
@@ -32849,34 +32727,26 @@ function (_React$Component) {
       var props = _ref.props,
           index = _ref.index,
           isActive = _ref.isActive;
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement("div", props, this.state.options[index], isActive && ' [isActive]')
-      );
+      return /*#__PURE__*/_react["default"].createElement("div", props, this.state.options[index], isActive && ' [isActive]');
     }
   }, {
     key: "render",
     value: function render() {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_index["default"].Selector, {
-          length: this.state.options.length,
-          onQueryChange: this.handleQueryChange.bind(this),
-          onSelect: this.handleSelect.bind(this),
-          optionRenderer: this.renderOption.bind(this),
-          placeholder: "Search by first name...",
-          query: this.state.query
-        })
-      );
+      return /*#__PURE__*/_react["default"].createElement(_index["default"].Selector, {
+        length: this.state.options.length,
+        onQueryChange: this.handleQueryChange.bind(this),
+        onSelect: this.handleSelect.bind(this),
+        optionRenderer: this.renderOption.bind(this),
+        placeholder: "Search by first name...",
+        query: this.state.query
+      });
     }
   }]);
 
   return SelectorExample;
 }(_react["default"].Component);
 
-var SingleSelectorExample =
-/*#__PURE__*/
-function (_React$Component2) {
+var SingleSelectorExample = /*#__PURE__*/function (_React$Component2) {
   _inherits(SingleSelectorExample, _React$Component2);
 
   var _super2 = _createSuper(SingleSelectorExample);
@@ -32922,32 +32792,23 @@ function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
-      return (
-        /*#__PURE__*/
-        _react["default"].createElement(_index["default"].SingleSelector, {
-          onQueryChange: this.handleQueryChange.bind(this),
-          onChange: this.handleChange.bind(this),
-          options: this.state.options,
-          placeholder: "Search by first name...",
-          query: this.state.query,
-          value: this.state.value
-        })
-      );
+      return /*#__PURE__*/_react["default"].createElement(_index["default"].SingleSelector, {
+        onQueryChange: this.handleQueryChange.bind(this),
+        onChange: this.handleChange.bind(this),
+        options: this.state.options,
+        placeholder: "Search by first name...",
+        query: this.state.query,
+        value: this.state.value
+      });
     }
   }]);
 
   return SingleSelectorExample;
 }(_react["default"].Component);
 
-_reactDom["default"].render(
-/*#__PURE__*/
-_react["default"].createElement(SelectorExample, null), document.getElementById('a'));
+_reactDom["default"].render( /*#__PURE__*/_react["default"].createElement(SelectorExample, null), document.getElementById('a'));
 
-_reactDom["default"].render(
-/*#__PURE__*/
-_react["default"].createElement(SingleSelectorExample, null), document.getElementById('b'));
+_reactDom["default"].render( /*#__PURE__*/_react["default"].createElement(SingleSelectorExample, null), document.getElementById('b'));
 
-_reactDom["default"].render(
-/*#__PURE__*/
-_react["default"].createElement(SingleSelectorExample, null), document.getElementById('c'));
+_reactDom["default"].render( /*#__PURE__*/_react["default"].createElement(SingleSelectorExample, null), document.getElementById('c'));
 });

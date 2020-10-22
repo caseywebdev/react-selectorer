@@ -11,9 +11,9 @@ export default ({ events, onOuterEvent }) => {
       if (!eventsCaptured.current.has(ev)) onOuterEvent(ev);
       setTimeout(() => eventsCaptured.current.clear());
     };
-    events.forEach(([event]) => document.addEventListener(event, handle));
+    events.forEach(event => document.addEventListener(event, handle));
     return () => {
-      events.forEach(([event]) => document.removeEventListener(event, handle));
+      events.forEach(event => document.removeEventListener(event, handle));
     };
   }, [events, onOuterEvent]);
 
