@@ -1,6 +1,6 @@
 {
   "name": "react-selectorer",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "main": "build/index.js",
@@ -12,8 +12,8 @@
     "prop-types": "15"
   },
   "peerDependencies": {
-    "react": "0.14 || 15 || 16",
-    "react-dom": "0.14 || 15 || 16",
+    "react": "17",
+    "react-dom": "17",
     "react-list": "0.8"
   },
   "devDependencies": {
@@ -23,8 +23,8 @@
     "cogs-transformer-concat-commonjs": "3",
     "cogs-transformer-replace": "3",
     "cogs": "4",
-    "react": "16",
-    "react-dom": "16",
+    "react": "17",
+    "react-dom": "17",
     "react-list": "0.8"
   }
 }

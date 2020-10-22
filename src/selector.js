@@ -143,7 +143,7 @@ export default ({
   }, [activate, query]);
 
   const { captureInnerEvent } = useOuterEvents({
-    events: useMemo(() => [['focus', true], ['mousedown'], ['touchstart']], []),
+    events: useMemo(() => ['focusin', 'mousedown', 'touchstart'], []),
     onOuterEvent: useCallback(
       ev => {
         if (isOpen && !ev.defaultPrevented) close();
