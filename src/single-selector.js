@@ -19,6 +19,8 @@ export default props => {
     apiRef,
     containerRenderer,
     onChange,
+    onOpen,
+    onClose,
     onQueryChange,
     optionRenderer = ({ props, value, isActive, isSelected }) => (
       <div {...props}>
@@ -69,11 +71,13 @@ export default props => {
   const handleOpen = useCallback(() => {
     const i = value == null ? undefined : indexOf(options, value);
     if (i != null) selectorApiRef.current.activate(i);
-  }, [options, value]);
+    onOpen?.();
+  }, [onOpen, options, value]);
 
   const handleClose = useCallback(() => {
     setShouldFocus(true);
-  }, []);
+    onClose?.();
+  }, [onClose]);
 
   const handleSelect = useCallback(
     i => {
