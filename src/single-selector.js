@@ -19,8 +19,8 @@ export default props => {
     apiRef,
     containerRenderer,
     onChange,
-    onOpen,
     onClose,
+    onOpen,
     onQueryChange,
     optionRenderer = ({ props, value, isActive, isSelected }) => (
       <div {...props}>
