@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import rs from '../index.js';
 
@@ -79,7 +79,8 @@ class SelectorExample extends React.Component {
   renderOption({ props, index, isActive }) {
     return (
       <div {...props}>
-        {this.state.options[index]}{isActive && ' [isActive]'}
+        {this.state.options[index]}
+        {isActive && ' [isActive]'}
       </div>
     );
   }
@@ -129,6 +130,6 @@ class SingleSelectorExample extends React.Component {
   }
 }
 
-ReactDOM.render(<SelectorExample />, document.getElementById('a'));
-ReactDOM.render(<SingleSelectorExample />, document.getElementById('b'));
-ReactDOM.render(<SingleSelectorExample />, document.getElementById('c'));
+createRoot(document.getElementById('a')).render(<SelectorExample />);
+createRoot(document.getElementById('b')).render(<SingleSelectorExample />);
+createRoot(document.getElementById('c')).render(<SingleSelectorExample />);
